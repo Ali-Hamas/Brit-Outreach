@@ -1,0 +1,11 @@
+name: unified_daily_prospect_research
+schedule: "0 9 * * *"
+skill: prospect_research
+prompt: |
+  Research 8 new prospects — FAST-CASH MODE: prioritize cash:
+  - 4x TalentBridge (mcp_ascentra_main / cat_talentbridge — info@ascentraconsulting.co.uk)
+  - 2x AI Consultancy (mcp_ascentra_main / cat_ai_consultancy — info@ascentraconsulting.co.uk)
+  - 1x Biometric Sign Up (mcp_ascentra_main / cat_biometric_signup — info@ascentraconsulting.co.uk)
+  - 1x Sentrivault VENDOR-FIRST (mcp_ascentra_main / cat_sentravault — info@ascentraconsulting.co.uk) — 70% NHS vendors/G-Cloud suppliers (5-500 emp, Founder/CTO/Compliance) with DTAC/DSPT/G-Cloud signals, 30% enterprise (CISO) max
+  For each, find **decision-maker and their direct email + direct phone number** (fallback to company dedicated contact if not found) and add to memory/pipeline.md with To Email and Phone Number for 48h voice follow-up.
+  Score fit 1-5, draft gap-based first line (vendor hook: "NHS-ready in 30 days, Launch £990"). Unified sending via info@ascentraconsulting.co.uk.

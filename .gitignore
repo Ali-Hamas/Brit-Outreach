@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+.env
+.venv/
+*.db
+*.db-journal
+.idea/
+.vscode/
+.DS_Store
+*.log
+Unified/workspace/web/node_modules/
+Unified/workspace/web/.next/

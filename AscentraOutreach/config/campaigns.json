@@ -1,0 +1,39 @@
+{
+  "company_name": "Ascentra Global",
+  "website": "ascentraconsulting.co.uk",
+
+  "smtp": {
+    "host": "live.noblecircle.online",
+    "port": 587,
+    "email": "info@ascentraconsulting.co.uk",
+    "password": "Uk2023@walse",
+    "from_name": "Ascentra Global"
+  },
+
+  "campaigns": [
+    {
+      "name": "AI Consultancy",
+      "subject": "AI roadmap for {{company}}",
+      "body": "Hi {{first_name}},\n\nIs {{company}} ready for AI transformation?\n\nWe help businesses reduce costs and grow with AI Strategy (£5k-15k) and Digital Transformation (£8k-25k).\n\nWhy us: Business-first approach, fractional CTO support, vast delivery team.\n\nCan we schedule a 15-min call? Book here: [link]\n\nBest regards,\nAscentra Global\ninfo@ascentraconsulting.co.uk",
+      "daily_limit": 100
+    },
+    {
+      "name": "TalentBridge",
+      "subject": "Engineers for {{company}} in 2 weeks",
+      "body": "Hi {{first_name}},\n\nNeed tech talent without 3-month hiring delays?\n\nWe lease pre-vetted remote engineers at GBP 1,600-9,000/month. Placed in ~2 weeks, pause/scale/stop anytime.\n\nOr we recruit any remote role for 10% of salary.\n\nCan we schedule a 15-min call? Book here: [link]\n\nBest regards,\nTalentBridge (Ascentra Global)\ninfo@ascentraconsulting.co.uk",
+      "daily_limit": 100
+    },
+    {
+      "name": "Biometric Sign Up",
+      "subject": "Passwordless sign-up for {{company}}",
+      "body": "Hi {{first_name}},\n\nIs {{company}} losing sign-up conversions?\n\nOur Biometric Sign Up lets users sign up with face/fingerprint only. GDPR-native, eIDAS 2.0 aligned, free early-access.\n\nCan we schedule a 20-min demo? Book here: [link]\n\nBest regards,\nAscentra Global\ninfo@ascentraconsulting.co.uk",
+      "daily_limit": 100
+    },
+    {
+      "name": "Sentrivault",
+      "subject": "NHS ready in 30 days for {{company}}",
+      "body": "Hi {{first_name}},\n\nIs {{company}}'s NHS contract waiting for DTAC/DSPT?\n\nSentrivault makes NHS vendors audit-ready in 30 days. Biometric auth + encrypted vault + compliance pack.\n\nLaunch Offer: £990 setup + £29/user/mo + 14-day free POC.\n\nCan we schedule a 20-min demo? Book here: [link]\n\nBest regards,\nSentrivault (Ascentra Global)\ninfo@ascentraconsulting.co.uk",
+      "daily_limit": 100
+    }
+  ]
+}

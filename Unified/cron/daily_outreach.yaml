@@ -1,0 +1,10 @@
+name: unified_daily_outreach
+schedule: "0 10 * * *"
+skill: outreach_writer
+prompt: |
+  FAST-CASH MODE — all via **CRM unified email (info@ascentraconsulting.co.uk)**:
+  - TalentBridge: 200/d via info@ascentraconsulting.co.uk (mcp_ascentra_main / cat_talentbridge) — send TalentBridge profile, **only to decision-maker direct email** or company dedicated email (never generic)
+  - AI Consultancy: 100/d via info@ascentraconsulting.co.uk (mcp_ascentra_main / cat_ai_consultancy)
+  - Biometric Sign Up + Sentrivault: **capped at 100/d total** via info@ascentraconsulting.co.uk (50 each) -> mcp_ascentra_main / cat_biometric_signup + cat_sentravault
+  If they ask for a meeting/demo, **book it directly via the MCP CRM calendar** (title prefix [Campaign] Company — Contact); Syed will attend and confirm status inside CRM. Log every sent message to the correct lead category section in memory/pipeline.md.
+

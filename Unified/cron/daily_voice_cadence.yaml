@@ -1,0 +1,17 @@
+name: unified_daily_voice_cadence
+schedule: "0 9-17 * * 1-5"
+skill: voice_caller
+prompt: |
+  Execute the 48-hour voice cadence check for Ascentra Global Ltd:
+  1. Query all leads across all 4 categories (cat_ai_consultancy, cat_talentbridge, cat_biometric_signup, cat_sentravault).
+  2. Filter for prospects where:
+     - status == 'email_sent'
+     - now - email_sent_at >= 48 hours (2 business days)
+     - No reply has been received and no meeting has been booked yet
+     - A valid phone number exists
+  3. Enqueue cold call jobs in the Voice Agent system for matching prospects:
+     - Set job type to 'cold_call' / 'lead_outreach'
+     - Pass campaign context and decision-maker name
+     - Voice agent will initiate phone call referencing the email sent from info@ascentraconsulting.co.uk
+  4. Update pipeline status to 'calling' / 'call_in_progress'.
+  5. If a meeting is booked during the call, sync calendar event with prefix '[Voice Followup] [Campaign] Company — Contact' for Syed Islam to attend.

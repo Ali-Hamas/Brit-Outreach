@@ -1,0 +1,75 @@
+version: "3.8"
+# TalentBridge Secure Workspace — EU VPS, 100% free self-hosted
+# No paid SaaS. Run: docker compose up -d (on your EU VPS)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: talentbridge
+      POSTGRES_USER: tb
+      POSTGRES_PASSWORD: changeme
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: ./web
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://tb:changeme@postgres:5432/talentbridge
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: change-this-jwt-secret
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+
+  # --- Video (Jitsi) — free self-hosted ---
+  # Minimal Jitsi stack; uncomment when ready to host video on same VPS
+  # jitsi-web:
+  #   image: jitsi/web:stable
+  #   ports: ["8000:80", "8443:443"]
+  # jicofo:
+  #   image: jitsi/jicofo:stable
+  # jvb:
+  #   image: jitsi/jvb:stable
+  #   ports: ["10000:10000/udp"]
+  # jibri: # for recording -> feeds whisper
+  #   image: jitsi/jibri:stable
+
+  # --- Transcription + Minutes (free self-hosted) ---
+  # whisper:
+  #   build: ./whisper
+  #   image: faster-whisper:latest
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   volumes:
+  #     - ollama:/root/.ollama
+  #   # run: ollama run llama3.1:8b on first start, then used for minutes
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio12345
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+
+volumes:
+  pgdata:
+  ollama:
+  miniodata:

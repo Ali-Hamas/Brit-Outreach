@@ -1,0 +1,11 @@
+name: unified_monthly_report
+schedule: "0 17 * * 5"
+skill: pipeline_manager
+prompt: |
+  Generate a unified monthly report segregated by lead category (single MCP profile, unified email info@ascentraconsulting.co.uk):
+  - mcp_ascentra_main / cat_ai_consultancy: outreach sent, response rate, voice follow-ups, meetings (Syed attended), Won X/5
+  - mcp_ascentra_main / cat_talentbridge: outreach sent, response rate, voice follow-ups, meetings (Syed), Won X/5, Onboarded, Line A MRR + Line B value, TalentBridge profile shared rate
+  - mcp_ascentra_main / cat_biometric_signup: outreach sent, voice follow-ups, Demo Requests X/25 toward 29 Oct 2026, Early-Access Joined, Pilots
+  - mcp_ascentra_main / cat_sentravault (Vendor-First: Vendor Starter £990→£2k + £29/user, Team £2.9k→£5k + £9/user, Business £8k + £14/user, Enterprise £12-15k + £19/user): outreach sent, voice follow-ups, POCs X/6-8 (≥4 vendors), Licenses Won X/3, ACV pipeline/Won (setup + annual), vendor vs enterprise split
+  Include: agreements awaiting Syed confirmation, onboarding health, voice calling conversion rate, recommendations per campaign for next month.
+  Biometric Sign Up target 25 + Sentrivault 3 licenses (ACV) are the primary enterprise traction metrics for the raise.

@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/var/www/outreach/data
+      - ./.env:/var/www/outreach/.env
+    restart: always
+    environment:
+      - DATABASE_URL=sqlite:////var/www/outreach/data/brit_outreach.db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: always

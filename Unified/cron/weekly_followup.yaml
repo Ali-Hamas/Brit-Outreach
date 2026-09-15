@@ -1,0 +1,15 @@
+﻿name: unified_weekly_pipeline_review
+schedule: "0 10 * * 1"
+skill: pipeline_manager
+prompt: |
+  Review the unified pipeline per lead category (single MCP profile):
+  1. mcp_ascentra_main / cat_ai_consultancy: Won X/5
+  2. mcp_ascentra_main / cat_talentbridge: Won X/5, Onboarded X/5 (Line A MRR, Line B value), send TalentBridge profile status
+  3. mcp_ascentra_main / cat_biometric_signup: Demo Requests X/25, Early-Access Joined, Pilots
+  4. mcp_ascentra_main / cat_sentravault (Vendor-First): POCs X/6-8 (≥4 vendors) Licenses X/3 (Vendor Starter £990/Team £2.9k/Business £8k/Enterprise £12-15k + per-user), ACV, vendor vs enterprise split
+  List for each:
+  - Meetings/demos booked via calendar (Syed to attend, status to confirm in CRM)
+  - Agreements awaiting Syed confirmation inside CRM
+  - Prospects needing follow-up (no contact 7+ days)
+  - Deals at risk
+  Update memory/pipeline.md with recommended actions per campaign to hit targets.

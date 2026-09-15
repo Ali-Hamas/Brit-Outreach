@@ -1,0 +1,11 @@
+﻿name: unified_weekly_onboarding
+schedule: "0 9 * * 3"
+skill: onboarding_manager
+prompt: |
+  For every client/org in stage "Confirmed" or "Won", run the onboarding workflow check for its campaign (use correct lead category (single MCP profile)):
+  - mcp_ascentra_main / cat_ai_consultancy: kickoff -> discovery -> roadmap
+  - mcp_ascentra_main / cat_talentbridge: confirm TalentBridge profile shared (Line A) or recruitment brief (Line B); flag if stuck >5 days
+  - mcp_ascentra_main / cat_biometric_signup: confirm workspace provisioned, safe code flow (device-scoped ID), email/pass multi-device setup
+  - mcp_ascentra_main / cat_sentravault: confirm POC provisioned (Vendor Starter/Team/Business/Enterprise tier, DSPT/DTAC pack), 14-30 day POC -> license, setup + per-user tier/ACV confirmed by Syed (Vendor Starter £990 launch, 3x instalments, 30-day guarantee)
+  Verify Syed has confirmed status inside CRM for any offer/POC scope and tier before it goes to the client. Notify Syed of any onboarding stuck >5 business days.
+  Goal: TalentBridge Won -> Onboarded within 2 weeks; Biometric demo -> early-access/pilot; Sentrivault Vendor-First POC -> 3 licenses (6-8 POCs, ≥4 vendors).
