@@ -24,7 +24,8 @@ pip install -r requirements.txt
 # Step 4: Setup database
 echo "[4/6] Setting up database..."
 cd /var/www/outreach
-python backend/AscentraOutreach/setup.py
+cd /var/www/outreach
+python AscentraOutreach/setup.py
 
 # Step 5: Setup frontend
 echo "[5/6] Setting up frontend..."
