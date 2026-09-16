@@ -12,7 +12,7 @@ echo "Backend started on port 8000 (PID: $BACKEND_PID)"
 
 # Start frontend
 cd /var/www/outreach/frontend
-npm run preview -- --port 3000 &
+npx vite preview --port 3000 --host 0.0.0.0 &
 FRONTEND_PID=$!
 echo "Frontend started on port 3000 (PID: $FRONTEND_PID)"
 
