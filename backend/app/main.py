@@ -35,7 +35,7 @@ app.include_router(tracking.router, prefix=settings.API_V1_STR)
 app.include_router(influencers.router, prefix=settings.API_V1_STR)
 app.include_router(social_listening.router, prefix=settings.API_V1_STR)
 app.include_router(voice_calls.router, prefix=settings.API_V1_STR)
-app.include_router(lead_discovery.router, prefix=settings.API_V1_STR, tags=["Lead Discovery"])
+app.include_router(lead_discovery.router, prefix=f"{settings.API_V1_STR}/lead-discovery", tags=["Lead Discovery"])
 
 @app.get("/")
 def root():
