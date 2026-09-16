@@ -175,6 +175,34 @@ export async function searchGoogleCSE(query, siteFilter, limit = 10) {
   return res.json();
 }
 
+// --- Lead Discovery (no API keys needed) ---
+
+export async function searchLeads(businessId, keywords) {
+  const res = await fetch(`${BASE_URL}/lead-discovery/search`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ business_id: businessId, keywords })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Lead search failed');
+  }
+  return res.json();
+}
+
+export async function saveLeadsToCampaign(businessId, campaignId, leads) {
+  const res = await fetch(`${BASE_URL}/lead-discovery/save-leads?business_id=${businessId}&campaign_id=${campaignId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(leads)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to save leads');
+  }
+  return res.json();
+}
+
 export async function draftAIReply(title, content, author, platform, subreddit) {
   const res = await fetch(`${BASE_URL}/social-listening/draft-reply`, {
     method: 'POST',
