@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.db.models import Business, Prospect, TargetMarket, Campaign
+from app.services.lead_discovery.places import search_businesses as places_search
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -29,6 +30,14 @@ class LeadResult(BaseModel):
     source_url: str
     score: int
     snippet: str
+
+
+class PlacesSearchRequest(BaseModel):
+    business_id: str
+    industry: str
+    location: str
+    campaign_id: Optional[str] = None
+    limit: int = 20
 
 
 def _extract_emails(text: str) -> List[str]:
@@ -310,4 +319,46 @@ async def save_leads_to_campaign(
         "saved": saved,
         "skipped": skipped,
         "message": f"Saved {saved} leads to campaign '{campaign.name}'"
+    }
+
+
+@router.post("/places-search")
+async def search_places(req: PlacesSearchRequest, db: Session = Depends(get_db)):
+    """Search Google Places for local businesses. Requires GOOGLE_PLACES_API_KEY."""
+    business = db.query(Business).filter(Business.id == req.business_id).first()
+    if not business:
+        raise HTTPException(status_code=404, detail="Business not found")
+
+    results, error = places_search(req.industry, req.location, req.limit)
+    
+    if error:
+        return {
+            "status": "error",
+            "error": error,
+            "leads": []
+        }
+
+    leads = []
+    for r in results:
+        leads.append({
+            "name": r.get("business_name", ""),
+            "email": "",
+            "company": r.get("business_name", ""),
+            "title": f"{r.get('industry', '')} in {r.get('location_query', '')}",
+            "source": "Google Places",
+            "source_url": f"https://www.google.com/maps/place/?q=place_id:{r.get('place_id', '')}",
+            "score": 60,
+            "snippet": f"{r.get('address', '')} | {r.get('phone', '')} | Rating: {r.get('rating', 'N/A')}",
+            "address": r.get("address", ""),
+            "phone": r.get("phone", ""),
+            "website": r.get("website", ""),
+            "rating": r.get("rating"),
+            "rating_count": r.get("user_ratings_total"),
+        })
+
+    return {
+        "status": "success",
+        "leads_found": len(leads),
+        "leads": leads[:req.limit],
+        "message": f"Found {len(leads)} businesses from Google Places"
     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   fetchBusinesses, fetchCampaigns, launchCampaign, fetchProspects,
-  uploadProspectsCSV, fetchAllSMTPConfigs, searchLeads, saveLeadsToCampaign
+  uploadProspectsCSV, fetchAllSMTPConfigs, searchLeads, saveLeadsToCampaign, searchPlaces
 } from './api';
 
 export default function App() {
@@ -21,6 +21,14 @@ export default function App() {
   const [searching, setSearching] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [saveToCampaign, setSaveToCampaign] = useState('');
+
+  // Places search state
+  const [placesQuery, setPlacesQuery] = useState('');
+  const [placesLocation, setPlacesLocation] = useState('');
+  const [placesResults, setPlacesResults] = useState([]);
+  const [placesSearching, setPlacesSearching] = useState(false);
+  const [selectedPlacesLeads, setSelectedPlacesLeads] = useState([]);
+  const [savePlacesToCampaign, setSavePlacesToCampaign] = useState('');
 
   useEffect(() => { init(); }, []);
 
@@ -117,6 +125,48 @@ export default function App() {
     setLoading(false);
   }
 
+  async function handlePlacesSearch() {
+    if (!placesQuery.trim() || !placesLocation.trim() || !selectedBiz) return;
+    setPlacesSearching(true);
+    setPlacesResults([]);
+    setSelectedPlacesLeads([]);
+    try {
+      const res = await searchPlaces(selectedBiz.id, placesQuery, placesLocation, 20);
+      setPlacesResults(res.leads || []);
+      showMsg(res.message || `Found ${res.leads_found} businesses`);
+    } catch (e) { showMsg('Places search error: ' + e.message, 'error'); }
+    setPlacesSearching(false);
+  }
+
+  function togglePlacesLead(idx) {
+    setSelectedPlacesLeads(prev =>
+      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+    );
+  }
+
+  function selectAllPlaces() {
+    if (selectedPlacesLeads.length === placesResults.length) {
+      setSelectedPlacesLeads([]);
+    } else {
+      setSelectedPlacesLeads(placesResults.map((_, i) => i));
+    }
+  }
+
+  async function handleSavePlacesLeads() {
+    if (!selectedBiz || !savePlacesToCampaign || selectedPlacesLeads.length === 0) return;
+    setLoading(true);
+    try {
+      const leadsToSave = selectedPlacesLeads.map(i => placesResults[i]);
+      const res = await saveLeadsToCampaign(selectedBiz.id, savePlacesToCampaign, leadsToSave);
+      showMsg(res.message || `Saved ${res.saved} leads`);
+      setPlacesResults([]);
+      setSelectedPlacesLeads([]);
+      setSavePlacesToCampaign('');
+      await load(selectedBiz.id);
+    } catch (e) { showMsg('Save error: ' + e.message, 'error'); }
+    setLoading(false);
+  }
+
   const realEmailProspects = prospects.filter(p => !p.email.includes('placeholder'));
 
   return (
@@ -151,6 +201,7 @@ export default function App() {
           {[
             { id: 'home', label: 'Dashboard' },
             { id: 'search', label: 'Find Leads' },
+            { id: 'places', label: 'Google Maps' },
             { id: 'upload', label: 'Upload CSV' },
             { id: 'campaigns', label: 'Campaigns' },
             { id: 'leads', label: 'All Leads' },
@@ -359,6 +410,131 @@ export default function App() {
             {!searching && searchResults.length === 0 && searchQuery && (
               <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
                 No results found. Try different keywords.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* GOOGLE MAPS */}
+        {tab === 'places' && (
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Google Maps Business Search</h2>
+            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Find local businesses on Google Maps. Requires Google Places API key in .env</p>
+
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              <input
+                value={placesQuery}
+                onChange={(e) => setPlacesQuery(e.target.value)}
+                placeholder="e.g. dental clinic, law firm, gym, restaurant"
+                style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '14px' }}
+              />
+              <input
+                value={placesLocation}
+                onChange={(e) => setPlacesLocation(e.target.value)}
+                placeholder="e.g. London UK, Manchester, Birmingham"
+                style={{ width: '200px', padding: '12px 16px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '14px' }}
+              />
+              <button
+                onClick={handlePlacesSearch}
+                disabled={placesSearching || !placesQuery.trim() || !placesLocation.trim()}
+                style={{
+                  padding: '12px 28px', borderRadius: '8px', border: 'none',
+                  background: placesSearching ? '#475569' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  color: '#fff', fontWeight: '600', cursor: placesSearching ? 'wait' : 'pointer',
+                  fontSize: '14px', whiteSpace: 'nowrap'
+                }}
+              >
+                {placesSearching ? 'Searching...' : 'Search Maps'}
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '12px', color: '#475569', alignSelf: 'center' }}>Try:</span>
+              {['dental clinic', 'law firm', 'gym fitness', 'restaurant', 'accounting firm'].map(s => (
+                <button key={s} onClick={() => setPlacesQuery(s)} style={{ fontSize: '11px', color: '#93c5fd', background: '#1e3a5f', border: '1px solid #1e40af', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer' }}>
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            {placesResults.length > 0 && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>Found {placesResults.length} businesses</h3>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button onClick={selectAllPlaces} style={{ fontSize: '11px', color: '#93c5fd', background: 'none', border: '1px solid #334155', padding: '4px 12px', borderRadius: '6px', cursor: 'pointer' }}>
+                      {selectedPlacesLeads.length === placesResults.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>{selectedPlacesLeads.length} selected</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
+                  <select
+                    value={savePlacesToCampaign}
+                    onChange={(e) => setSavePlacesToCampaign(e.target.value)}
+                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '13px', flex: 1 }}
+                  >
+                    <option value="">Select campaign to save businesses...</option>
+                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <button
+                    onClick={handleSavePlacesLeads}
+                    disabled={loading || !savePlacesToCampaign || selectedPlacesLeads.length === 0}
+                    style={{
+                      padding: '8px 20px', borderRadius: '8px', border: 'none',
+                      background: selectedPlacesLeads.length > 0 && savePlacesToCampaign ? '#22c55e' : '#334155',
+                      color: '#fff', fontWeight: '600', cursor: selectedPlacesLeads.length > 0 && savePlacesToCampaign ? 'pointer' : 'not-allowed',
+                      fontSize: '13px'
+                    }}
+                  >
+                    Save {selectedPlacesLeads.length} Businesses
+                  </button>
+                </div>
+
+                {placesResults.map((r, i) => (
+                  <div
+                    key={i}
+                    onClick={() => togglePlacesLead(i)}
+                    style={{
+                      background: selectedPlacesLeads.includes(i) ? '#1e3a5f' : '#111827',
+                      borderRadius: '10px', padding: '16px', marginBottom: '8px',
+                      border: `1px solid ${selectedPlacesLeads.includes(i) ? '#3b82f6' : '#1f2937'}`,
+                      cursor: 'pointer', transition: 'all 0.1s ease',
+                      display: 'flex', gap: '12px', alignItems: 'flex-start'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedPlacesLeads.includes(i)}
+                      onChange={() => togglePlacesLead(i)}
+                      style={{ marginTop: '2px', accentColor: '#3b82f6' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: '600', fontSize: '14px' }}>{r.name}</span>
+                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: '#1e3a5f', color: '#60a5fa' }}>
+                          Google Maps
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>{r.address || 'No address'}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{r.phone || 'No phone'}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>
+                        {r.website ? <a href={r.website} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'none' }}>{r.website}</a> : 'No website'}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#fbbf24' }}>Rating: {r.rating || 'N/A'} ({r.rating_count || 0} reviews)</div>
+                      <a href={r.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'none' }}>
+                        View on Google Maps →
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!placesSearching && placesResults.length === 0 && placesQuery && (
+              <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
+                No results found. Try different keywords or add Google Places API key.
               </div>
             )}
           </div>

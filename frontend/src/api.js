@@ -216,6 +216,19 @@ export async function enrichLeadsEmails(leads) {
   return res.json();
 }
 
+export async function searchPlaces(businessId, industry, location, limit = 20) {
+  const res = await fetch(`${BASE_URL}/lead-discovery/places-search`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ business_id: businessId, industry, location, limit })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Places search failed');
+  }
+  return res.json();
+}
+
 export async function draftAIReply(title, content, author, platform, subreddit) {
   const res = await fetch(`${BASE_URL}/social-listening/draft-reply`, {
     method: 'POST',
