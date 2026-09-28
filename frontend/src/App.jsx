@@ -30,6 +30,24 @@ export default function App() {
   const [selectedPlacesLeads, setSelectedPlacesLeads] = useState([]);
   const [savePlacesToCampaign, setSavePlacesToCampaign] = useState('');
 
+  // Influencer outreach state (BritCRM defaults)
+  const [infProductName, setInfProductName] = useState('BritCRM');
+  const [infProductDesc, setInfProductDesc] = useState('A self-hosted Next.js CRM that unifies sales pipelines, real-time team chat, LiveKit video meetings, AI email outreach, and an MCP server for AI agents. All-in-one CRM for small teams and agencies: leads, customers, deals, invoicing, campaigns, meetings, and automations in one deployable Node process.');
+  const [infProductWebsite, setInfProductWebsite] = useState('https://truecrm.online/billing');
+  const [infTargetNiche, setInfTargetNiche] = useState('SaaS founders, agencies, dev teams, small businesses, tech startups');
+  const [infPlatforms, setInfPlatforms] = useState(['youtube', 'instagram', 'tiktok', 'linkedin']);
+  const [infMinFollowers, setInfMinFollowers] = useState(1000);
+  const [infMaxInfluencers, setInfMaxInfluencers] = useState(15);
+  const [infCommission, setInfCommission] = useState(25);
+
+  // Influencer search state
+  const [infSearchResults, setInfSearchResults] = useState([]);
+  const [infSearching, setInfSearching] = useState(false);
+  const [infSelectedLeads, setInfSelectedLeads] = useState([]);
+  const [infSaveToCampaign, setInfSaveToCampaign] = useState('');
+  const [infPreviewEmail, setInfPreviewEmail] = useState(null);
+  const [infLaunching, setInfLaunching] = useState(false);
+
   useEffect(() => { init(); }, []);
 
   async function init() {
