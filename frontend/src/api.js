@@ -296,3 +296,53 @@ export async function syncVoiceOutcomes() {
   return res.json();
 }
 
+// --- Influencer Affiliate Outreach ---
+
+export async function findInfluencers(businessId, product) {
+  const res = await fetch(`${BASE_URL}/influencer-outreach/find-influencers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ business_id: businessId, product })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to find influencers');
+  }
+  return res.json();
+}
+
+export async function launchInfluencerOutreach(businessId, product, autoLaunch = true) {
+  const res = await fetch(`${BASE_URL}/influencer-outreach/launch-outreach`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ business_id: businessId, product, auto_launch: autoLaunch })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to launch outreach');
+  }
+  return res.json();
+}
+
+export async function previewInfluencerEmail(data) {
+  const res = await fetch(`${BASE_URL}/influencer-outreach/preview-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to preview email');
+  }
+  return res.json();
+}
+
+export async function getReferralStats(refCode) {
+  const res = await fetch(`${BASE_URL}/influencer-outreach/referral-stats/${refCode}`);
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to fetch stats');
+  }
+  return res.json();
+}
+

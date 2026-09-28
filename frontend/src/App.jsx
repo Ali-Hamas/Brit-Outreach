@@ -681,6 +681,248 @@ export default function App() {
             </div>
           </div>
         )}
+        {/* INFLUENCER OUTREACH */}
+        {tab === 'influencers' && (
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Influencer Affiliate Outreach</h2>
+            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>
+              Find creators who match your product, send automated outreach with 25% commission, track referrals
+            </p>
+
+            {/* Product Configuration */}
+            <div style={{ background: '#111827', borderRadius: '12px', padding: '24px', marginBottom: '24px', border: '1px solid #1f2937' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px' }}>Product Configuration</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Product Name</label>
+                  <input
+                    value={infProductName}
+                    onChange={(e) => setInfProductName(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Product Website</label>
+                  <input
+                    value={infProductWebsite}
+                    onChange={(e) => setInfProductWebsite(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Commission Rate</label>
+                  <select
+                    value={infCommission}
+                    onChange={(e) => setInfCommission(parseInt(e.target.value))}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  >
+                    <option value="10">10%</option>
+                    <option value="15">15%</option>
+                    <option value="20">20%</option>
+                    <option value="25">25% (Recommended)</option>
+                    <option value="30">30%</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Target Niche</label>
+                  <input
+                    value={infTargetNiche}
+                    onChange={(e) => setInfTargetNiche(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Min Followers</label>
+                  <input
+                    type="number"
+                    value={infMinFollowers}
+                    onChange={(e) => setInfMinFollowers(parseInt(e.target.value))}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Max Influencers</label>
+                  <input
+                    type="number"
+                    value={infMaxInfluencers}
+                    onChange={(e) => setInfMaxInfluencers(parseInt(e.target.value))}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+              </div>
+              <div style={{ marginTop: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Platforms</label>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {['youtube', 'instagram', 'tiktok', 'linkedin'].map(p => (
+                    <label key={p} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={infPlatforms.includes(p)}
+                        onChange={(e) => setInfPlatforms(e.target.checked ? [...infPlatforms, p] : infPlatforms.filter(x => x !== p))}
+                        style={{ accentColor: '#3b82f6' }}
+                      />
+                      <span style={{ fontSize: '12px', fontWeight: '500', textTransform: 'capitalize' }}>{p}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginTop: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Product Description</label>
+                <textarea
+                  value={infProductDesc}
+                  onChange={(e) => setInfProductDesc(e.target.value)}
+                  rows={3}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+                />
+              </div>
+            </div>
+
+            {/* Search & Launch */}
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+              <button
+                onClick={handleFindInfluencers}
+                disabled={infSearching}
+                style={{
+                  padding: '12px 28px', borderRadius: '8px', border: 'none',
+                  background: infSearching ? '#475569' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  color: '#fff', fontWeight: '600', cursor: infSearching ? 'wait' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {infSearching ? 'Searching...' : 'Find Influencers'}
+              </button>
+              <button
+                onClick={handleLaunchInfOutreach}
+                disabled={infLaunching || infSearchResults.length === 0}
+                style={{
+                  padding: '12px 28px', borderRadius: '8px', border: 'none',
+                  background: infLaunching ? '#475569' : (infSearchResults.length > 0 ? '#22c55e' : '#334155'),
+                  color: '#fff', fontWeight: '600',
+                  cursor: infLaunching ? 'wait' : (infSearchResults.length > 0 ? 'pointer' : 'not-allowed'),
+                  fontSize: '14px'
+                }}
+              >
+                {infLaunching ? 'Launching...' : 'Launch Outreach'}
+              </button>
+            </div>
+
+            {/* Results */}
+            {infSearchResults.length > 0 && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>Found {infSearchResults.length} influencers</h3>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button onClick={selectAllInf} style={{ fontSize: '11px', color: '#93c5fd', background: 'none', border: '1px solid #334155', padding: '4px 12px', borderRadius: '6px', cursor: 'pointer' }}>
+                      {infSelectedLeads.length === infSearchResults.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>{infSelectedLeads.length} selected</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
+                  <select
+                    value={infSaveToCampaign}
+                    onChange={(e) => setInfSaveToCampaign(e.target.value)}
+                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '13px', flex: 1 }}
+                  >
+                    <option value="">Select campaign to save influencers...</option>
+                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <button
+                    onClick={handleSavePlacesLeads}
+                    disabled={loading || !infSaveToCampaign || infSelectedLeads.length === 0}
+                    style={{
+                      padding: '8px 20px', borderRadius: '8px', border: 'none',
+                      background: infSelectedLeads.length > 0 && infSaveToCampaign ? '#22c55e' : '#334155',
+                      color: '#fff', fontWeight: '600', cursor: infSelectedLeads.length > 0 && infSaveToCampaign ? 'pointer' : 'not-allowed',
+                      fontSize: '13px'
+                    }}
+                  >
+                    Save {infSelectedLeads.length} to Campaign
+                  </button>
+                </div>
+
+                {infSearchResults.map((r, i) => (
+                  <div
+                    key={i}
+                    onClick={() => toggleInfLead(i)}
+                    style={{
+                      background: infSelectedLeads.includes(i) ? '#1e3a5f' : '#111827',
+                      borderRadius: '10px', padding: '16px', marginBottom: '8px',
+                      border: `1px solid ${infSelectedLeads.includes(i) ? '#3b82f6' : '#1f2937'}`,
+                      cursor: 'pointer', transition: 'all 0.1s ease',
+                      display: 'flex', gap: '12px', alignItems: 'flex-start'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={infSelectedLeads.includes(i)}
+                      onChange={() => toggleInfLead(i)}
+                      style={{ marginTop: '2px', accentColor: '#3b82f6' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: '600', fontSize: '14px' }}>{r.name}</span>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: '#1e3a5f', color: '#60a5fa' }}>
+                            {r.platform}
+                          </span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handlePreviewInfEmail(i); }}
+                            style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '4px', background: '#8b5cf6', color: '#fff', border: 'none', cursor: 'pointer' }}
+                          >
+                            Preview Email
+                          </button>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>{r.contact_email}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{r.niche} · {r.followers_count} followers</div>
+                      <div style={{ fontSize: '12px', color: '#fbbf24' }}>Commission: {r.affiliate_fit_score || infCommission}%</div>
+                      <a href={r.profile_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'none' }}>
+                        View Profile →
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!infSearching && infSearchResults.length === 0 && !infSearching && (
+              <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
+                Configure your product above and click "Find Influencers" to start.
+              </div>
+            )}
+
+            {/* Email Preview Modal (inside influencer tab) */}
+            {infPreviewEmail && (
+              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '24px' }}>
+                <div style={{ background: '#111827', borderRadius: '12px', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflow: 'auto', border: '1px solid #1f2937' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid #1f2937' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '600' }}>Email Preview</h3>
+                    <button onClick={() => setInfPreviewEmail(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '20px', cursor: 'pointer' }}>×</button>
+                  </div>
+                  <div style={{ padding: '24px' }}>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Subject:</div>
+                    <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', padding: '12px', background: '#0a0e1a', borderRadius: '8px', border: '1px solid #334155' }}>
+                      {infPreviewEmail.subject}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Referral Link:</div>
+                    <div style={{ fontSize: '13px', color: '#60a5fa', marginBottom: '16px', padding: '12px', background: '#0a0e1a', borderRadius: '8px', border: '1px solid #334155', wordBreak: 'break-all' }}>
+                      {infPreviewEmail.referral_link}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Body:</div>
+                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: '13px', lineHeight: '1.6', fontFamily: 'inherit', background: '#0a0e1a', padding: '16px', borderRadius: '8px', border: '1px solid #334155', maxHeight: '400px', overflow: 'auto' }}>
+                      {infPreviewEmail.body}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
       </main>
 
       {/* Footer */}
