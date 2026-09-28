@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     HUBSPOT_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     GROQ_API_KEY: Optional[str] = None
-    GROQ_MODEL: str = "openai/gpt-oss-120b"
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
     BRITCRM_API_URL: str = "https://truecrm.online/api/mcp"
     BRITCRM_BEARER_TOKEN: Optional[str] = None
 

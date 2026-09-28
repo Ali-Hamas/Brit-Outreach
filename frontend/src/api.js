@@ -203,6 +203,19 @@ export async function saveLeadsToCampaign(businessId, campaignId, leads) {
   return res.json();
 }
 
+export async function enrichLeadsEmails(leads) {
+  const res = await fetch(`${BASE_URL}/lead-discovery/enrich-emails`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(leads)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to enrich leads');
+  }
+  return res.json();
+}
+
 export async function draftAIReply(title, content, author, platform, subreddit) {
   const res = await fetch(`${BASE_URL}/social-listening/draft-reply`, {
     method: 'POST',

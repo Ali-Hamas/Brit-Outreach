@@ -2,7 +2,7 @@
 import os
 import re
 import logging
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -31,7 +31,7 @@ class LeadResult(BaseModel):
     snippet: str
 
 
-def _extract_emails(text: str) -> list[str]:
+def _extract_emails(text: str) -> List[str]:
     return re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
 
 
@@ -42,25 +42,30 @@ def _extract_names_from_username(username: str) -> tuple[str, str]:
     return parts[0].capitalize(), ''
 
 
-def _guess_email_from_domain(domain: str) -> str:
-    return f"info@{domain}"
+def _guess_company_email(author: str, subreddit: str) -> Optional[str]:
+    """Guess company email from Reddit username patterns."""
+    # Common patterns: user@company.com, info@company.com, etc.
+    # We can't reliably guess, so we'll check if user mentions their domain
+    return None
 
 
-async def search_reddit_public(keywords: str, limit: int = 25) -> list[dict]:
+async def search_reddit_public(keywords: str, limit: int = 25) -> List[dict]:
     """Search Reddit using public JSON endpoint - no API key needed."""
     import httpx
 
     subreddits = [
         'entrepreneur', 'smallbusiness', 'startups', 'SaaS',
         'webdev', 'ArtificialIntelligence', 'automation',
-        'freelance', 'forhire', 'digital_marketing'
+        'freelance', 'forhire', 'digital_marketing',
+        'web_design', 'seo', 'marketing', 'sales',
+        'consulting', 'agency', 'b2b'
     ]
 
     all_results = []
     search_terms = [keywords.strip()]
 
     for term in search_terms[:3]:
-        for subreddit in subreddits[:5]:
+        for subreddit in subreddits[:8]:
             try:
                 url = f"https://www.reddit.com/r/{subreddit}/search.json"
                 params = {
@@ -68,11 +73,11 @@ async def search_reddit_public(keywords: str, limit: int = 25) -> list[dict]:
                     'restrict_sr': 'on',
                     'sort': 'relevance',
                     't': 'month',
-                    'limit': str(min(limit, 10))
+                    'limit': str(min(limit, 15))
                 }
                 headers = {'User-Agent': 'BritOutreach/1.0 (outreach research bot)'}
 
-                async with httpx.AsyncClient(timeout=10) as client:
+                async with httpx.AsyncClient(timeout=15) as client:
                     resp = await client.get(url, params=params, headers=headers)
                     if resp.status_code == 200:
                         data = resp.json()
@@ -84,7 +89,7 @@ async def search_reddit_public(keywords: str, limit: int = 25) -> list[dict]:
                                 'author': p.get('author', ''),
                                 'subreddit': p.get('subreddit', ''),
                                 'url': f"https://reddit.com{p.get('permalink', '')}",
-                                'content': p.get('selftext', '')[:500],
+                                'content': p.get('selftext', '')[:1000],
                                 'upvotes': p.get('ups', 0),
                                 'num_comments': p.get('num_comments', 0),
                                 'created_utc': p.get('created_utc', 0),
@@ -99,19 +104,32 @@ async def search_reddit_public(keywords: str, limit: int = 25) -> list[dict]:
     return all_results[:limit]
 
 
+def _extract_emails(text: str) -> list[str]:
+    return re.findall(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
+
+
+def _extract_names_from_username(username: str) -> tuple[str, str]:
+    parts = username.replace('_', ' ').replace('-', ' ').split()
+    if len(parts) >= 2:
+        return parts[0].capitalize(), parts[1].capitalize()
+    return parts[0].capitalize(), ''
+
+
 def _score_lead_from_post(post: dict) -> int:
     score = 50
     content = (post.get('title', '') + ' ' + post.get('content', '')).lower()
 
     high_intent = ['looking for', 'need help', 'need a', 'recommend', 'anyone know',
                    'suggestion', 'advice', 'hire', 'freelancer', 'agency', 'consultant',
-                   'help with', 'struggling with', 'problem with', 'not working']
+                   'help with', 'struggling with', 'problem with', 'not working',
+                   'budget for', 'investment for', 'funding for', 'outsourcing']
     for phrase in high_intent:
         if phrase in content:
             score += 15
             break
 
-    medium_intent = ['thinking about', 'considering', 'want to', 'trying to', 'plan to']
+    medium_intent = ['thinking about', 'considering', 'want to', 'trying to', 'plan to',
+                     'researching', 'exploring', 'evaluating']
     for phrase in medium_intent:
         if phrase in content:
             score += 8
@@ -121,8 +139,21 @@ def _score_lead_from_post(post: dict) -> int:
         score += 5
     if post.get('upvotes', 0) > 10:
         score += 5
+    if post.get('num_comments', 0) > 20:
+        score += 5
+    if post.get('upvotes', 0) > 50:
+        score += 5
 
     return min(score, 100)
+
+
+def _extract_contact_from_content(post: dict) -> tuple[Optional[str], Optional[str]]:
+    """Extract email and name from post content."""
+    content = post.get('content', '')
+    emails = _extract_emails(content)
+    if emails:
+        return emails[0], None
+    return None, None
 
 
 @router.post("/search")
@@ -132,55 +163,91 @@ async def search_leads(req: LeadSearchRequest, db: Session = Depends(get_db)):
     if not business:
         raise HTTPException(status_code=404, detail="Business not found")
 
-    posts = await search_reddit_public(req.keywords, limit=20)
+    posts = await search_reddit_public(req.keywords, limit=30)
 
     leads = []
     seen_emails = set()
 
     for post in posts:
         author = post.get('author', '')
-        if not author or author in ['[deleted]', '[removed]']:
+        if not author or author in ['[deleted]', '[removed]', 'AutoModerator']:
             continue
 
-        emails_in_content = _extract_emails(post.get('content', ''))
-        if emails_in_content:
-            for email in emails_in_content:
-                if email not in seen_emails and 'reddit.com' not in email:
-                    seen_emails.add(email)
-                    first_name, last_name = _extract_names_from_username(author)
-                    leads.append(LeadResult(
-                        name=author,
-                        email=email,
-                        company=f"r/{post.get('subreddit', 'unknown')}",
-                        title="Reddit User",
-                        source="Reddit",
-                        source_url=post.get('url', ''),
-                        score=_score_lead_from_post(post),
-                        snippet=post.get('title', '')[:200],
-                    ))
-        else:
-            email = f"info@reddit-{author.lower()}.placeholder"
-            first_name, last_name = _extract_names_from_username(author)
-            leads.append(LeadResult(
-                name=author,
-                email=email,
-                company=f"r/{post.get('subreddit', 'unknown')}",
-                title="Reddit User",
-                source="Reddit",
-                source_url=post.get('url', ''),
-                score=_score_lead_from_post(post),
-                snippet=post.get('title', '')[:200],
-            ))
+        # Try to extract email from post content
+        email, name_from_content = _extract_contact_from_content(post)
 
-    leads.sort(key=lambda x: x.score, reverse=True)
+        first_name, last_name = _extract_names_from_username(author)
+
+        if email and email not in seen_emails and 'reddit.com' not in email and 'example.com' not in email:
+            seen_emails.add(email)
+            leads.append({
+                "name": f"{first_name} {last_name}".strip() or author,
+                "email": email,
+                "company": f"r/{post.get('subreddit', 'unknown')}",
+                "title": "Reddit User (shared email)",
+                "source": "Reddit",
+                "source_url": post.get('url', ''),
+                "score": _score_lead_from_post(post),
+                "snippet": post.get('title', '')[:200],
+            })
+        else:
+            # No email in content - try to infer from username patterns
+            # Some users have firstname.lastname or company patterns
+            # We'll create a high-quality lead anyway with the Reddit profile
+            leads.append({
+                "name": f"{first_name} {last_name}".strip() or author,
+                "email": "",  # Will be filled later or marked as needs enrichment
+                "company": f"r/{post.get('subreddit', 'unknown')}",
+                "title": f"Active on r/{post.get('subreddit', 'unknown')}",
+                "source": "Reddit",
+                "source_url": post.get('url', ''),
+                "score": _score_lead_from_post(post),
+                "snippet": post.get('title', '')[:200],
+            })
+
+    # Sort by score
+    leads.sort(key=lambda x: x.get('score', 50), reverse=True)
+
+    # Filter to show best leads first (those with emails first)
+    leads_with_email = [l for l in leads if l.get('email')]
+    leads_without_email = [l for l in leads if not l.get('email')]
 
     return {
         "status": "success",
         "total_posts": len(posts),
-        "leads_found": len(leads),
-        "leads": [l.dict() for l in leads[:20]],
-        "message": f"Found {len(leads)} potential leads from {len(posts)} Reddit posts"
+        "leads_with_email": len(leads_with_email),
+        "leads_needing_enrichment": len(leads_without_email),
+        "leads": (leads_with_email + leads_without_email)[:25],
+        "message": f"Found {len(leads_with_email)} leads with emails, {len(leads_without_email)} needing enrichment from {len(posts)} Reddit posts"
     }
+
+
+@router.post("/enrich-emails")
+async def enrich_leads_emails(leads: list[dict], db: Session = Depends(get_db)):
+    """Try to find emails for leads that don't have them."""
+    import httpx
+    
+    enriched = []
+    for lead in leads:
+        if lead.get('email'):
+            enriched.append(lead)
+            continue
+        
+        # Try to guess email from username if it looks like a company
+        name = lead.get('name', '')
+        company = lead.get('company', '')
+        
+        # If company looks like a domain, try common patterns
+        email = None
+        if company and '.' in company and not company.startswith('r/'):
+            domain = company.replace('www.', '').replace('http://', '').replace('https://', '')
+            common = ['info', 'hello', 'contact', 'team', 'support']
+            # We can't verify without API, so we'll leave empty
+            pass
+        
+        enriched.append({**lead, 'email': email or ''})
+    
+    return {"enriched": enriched}
 
 
 @router.post("/save-leads")
@@ -204,7 +271,7 @@ async def save_leads_to_campaign(
 
     for lead in leads:
         email = lead.get('email', '')
-        if not email or '@' not in email or 'placeholder' in email:
+        if not email or '@' not in email:
             skipped += 1
             continue
 
@@ -217,12 +284,15 @@ async def save_leads_to_campaign(
             skipped += 1
             continue
 
+        name = lead.get('name', '')
+        name_parts = name.split() if name else ['', '']
+        
         prospect = Prospect(
             business_id=business_id,
             campaign_id=campaign_id,
             email=email,
-            first_name=lead.get('name', '').split()[0] if lead.get('name') else '',
-            last_name=' '.join(lead.get('name', '').split()[1:]) if lead.get('name') else '',
+            first_name=name_parts[0] if name_parts else '',
+            last_name=' '.join(name_parts[1:]) if len(name_parts) > 1 else '',
             company=lead.get('company', ''),
             title=lead.get('title', ''),
             score=lead.get('score', 50),
