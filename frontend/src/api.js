@@ -229,6 +229,19 @@ export async function searchPlaces(businessId, industry, location, limit = 20) {
   return res.json();
 }
 
+export async function searchApollo(businessId, params = {}) {
+  const res = await fetch(`${BASE_URL}/lead-discovery/apollo-search`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ business_id: businessId, ...params })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Apollo search failed');
+  }
+  return res.json();
+}
+
 export async function draftAIReply(title, content, author, platform, subreddit) {
   const res = await fetch(`${BASE_URL}/social-listening/draft-reply`, {
     method: 'POST',

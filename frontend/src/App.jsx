@@ -30,6 +30,15 @@ export default function App() {
   const [selectedPlacesLeads, setSelectedPlacesLeads] = useState([]);
   const [savePlacesToCampaign, setSavePlacesToCampaign] = useState('');
 
+  // Apollo search state
+  const [apolloIndustry, setApolloIndustry] = useState('Computer Software');
+  const [apolloLocation, setApolloLocation] = useState('London');
+  const [apolloTitles, setApolloTitles] = useState('CTO,CEO,Founder,VP Engineering,Head of Engineering');
+  const [apolloResults, setApolloResults] = useState([]);
+  const [apolloSearching, setApolloSearching] = useState(false);
+  const [selectedApolloLeads, setSelectedApolloLeads] = useState([]);
+  const [saveApolloToCampaign, setSaveApolloToCampaign] = useState('');
+
   // Influencer outreach state (BritCRM defaults)
   const [infProductName, setInfProductName] = useState('BritCRM');
   const [infProductDesc, setInfProductDesc] = useState('A self-hosted Next.js CRM that unifies sales pipelines, real-time team chat, LiveKit video meetings, AI email outreach, and an MCP server for AI agents. All-in-one CRM for small teams and agencies: leads, customers, deals, invoicing, campaigns, meetings, and automations in one deployable Node process.');
@@ -185,6 +194,53 @@ export default function App() {
     setLoading(false);
   }
 
+  async function handleApolloSearch() {
+    if (!apolloIndustry.trim() || !selectedBiz) return;
+    setApolloSearching(true);
+    setApolloResults([]);
+    setSelectedApolloLeads([]);
+    try {
+      const res = await searchApollo(selectedBiz.id, {
+        industry: apolloIndustry,
+        location: apolloLocation,
+        titles: apolloTitles.split(',').map(t => t.trim()),
+        limit: 50
+      });
+      setApolloResults(res.leads || []);
+      showMsg(res.message || `Found ${res.leads_found} contacts`);
+    } catch (e) { showMsg('Apollo search error: ' + e.message, 'error'); }
+    setApolloSearching(false);
+  }
+
+  function toggleApolloLead(idx) {
+    setSelectedApolloLeads(prev =>
+      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+    );
+  }
+
+  function selectAllApollo() {
+    if (selectedApolloLeads.length === apolloResults.length) {
+      setSelectedApolloLeads([]);
+    } else {
+      setSelectedApolloLeads(apolloResults.map((_, i) => i));
+    }
+  }
+
+  async function handleSaveApolloLeads() {
+    if (!selectedBiz || !saveApolloToCampaign || selectedApolloLeads.length === 0) return;
+    setLoading(true);
+    try {
+      const leadsToSave = selectedApolloLeads.map(i => apolloResults[i]);
+      const res = await saveLeadsToCampaign(selectedBiz.id, saveApolloToCampaign, leadsToSave);
+      showMsg(res.message || `Saved ${res.saved} leads`);
+      setApolloResults([]);
+      setSelectedApolloLeads([]);
+      setSaveApolloToCampaign('');
+      await load(selectedBiz.id);
+    } catch (e) { showMsg('Save error: ' + e.message, 'error'); }
+    setLoading(false);
+  }
+
   const realEmailProspects = prospects.filter(p => !p.email.includes('placeholder'));
 
   return (
@@ -216,10 +272,12 @@ export default function App() {
       {/* Navigation */}
       <nav style={{ background: '#0f172a', borderBottom: '1px solid #1e293b', padding: '0 32px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '4px' }}>
-          {[
+{[
             { id: 'home', label: 'Dashboard' },
             { id: 'search', label: 'Find Leads' },
             { id: 'places', label: 'Google Maps' },
+            { id: 'apollo', label: 'Apollo Search' },
+            { id: 'influencers', label: 'Influencer Outreach' },
             { id: 'upload', label: 'Upload CSV' },
             { id: 'campaigns', label: 'Campaigns' },
             { id: 'leads', label: 'All Leads' },
@@ -553,6 +611,137 @@ export default function App() {
             {!placesSearching && placesResults.length === 0 && placesQuery && (
               <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
                 No results found. Try different keywords or add Google Places API key.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* APOLLO SEARCH */}
+        {tab === 'apollo' && (
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Apollo.io B2B Contact Search</h2>
+            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Find verified business contacts from Apollo.io database. Requires APOLLO_API_KEY in .env</p>
+
+            <div style={{ background: '#111827', borderRadius: '12px', padding: '24px', marginBottom: '24px', border: '1px solid #1f2937' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px' }}>Search Criteria</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Industry</label>
+                  <input
+                    value={apolloIndustry}
+                    onChange={(e) => setApolloIndustry(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Location</label>
+                  <input
+                    value={apolloLocation}
+                    onChange={(e) => setApolloLocation(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Job Titles (comma-separated)</label>
+                  <input
+                    value={apolloTitles}
+                    onChange={(e) => setApolloTitles(e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+              <button
+                onClick={handleApolloSearch}
+                disabled={apolloSearching || !apolloIndustry.trim()}
+                style={{
+                  padding: '12px 28px', borderRadius: '8px', border: 'none',
+                  background: apolloSearching ? '#475569' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  color: '#fff', fontWeight: '600', cursor: apolloSearching ? 'wait' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                {apolloSearching ? 'Searching...' : 'Search Apollo'}
+              </button>
+            </div>
+
+            {apolloResults.length > 0 && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>Found {apolloResults.length} contacts</h3>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button onClick={selectAllApollo} style={{ fontSize: '11px', color: '#93c5fd', background: 'none', border: '1px solid #334155', padding: '4px 12px', borderRadius: '6px', cursor: 'pointer' }}>
+                      {selectedApolloLeads.length === apolloResults.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>{selectedApolloLeads.length} selected</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
+                  <select
+                    value={saveApolloToCampaign}
+                    onChange={(e) => setSaveApolloToCampaign(e.target.value)}
+                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '13px', flex: 1 }}
+                  >
+                    <option value="">Select campaign to save contacts...</option>
+                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <button
+                    onClick={handleSaveApolloLeads}
+                    disabled={loading || !saveApolloToCampaign || selectedApolloLeads.length === 0}
+                    style={{
+                      padding: '8px 20px', borderRadius: '8px', border: 'none',
+                      background: selectedApolloLeads.length > 0 && saveApolloToCampaign ? '#22c55e' : '#334155',
+                      color: '#fff', fontWeight: '600', cursor: selectedApolloLeads.length > 0 && saveApolloToCampaign ? 'pointer' : 'not-allowed',
+                      fontSize: '13px'
+                    }}
+                  >
+                    Save {selectedApolloLeads.length} Contacts
+                  </button>
+                </div>
+
+                {apolloResults.map((r, i) => (
+                  <div
+                    key={i}
+                    onClick={() => toggleApolloLead(i)}
+                    style={{
+                      background: selectedApolloLeads.includes(i) ? '#1e3a5f' : '#111827',
+                      borderRadius: '10px', padding: '16px', marginBottom: '8px',
+                      border: `1px solid ${selectedApolloLeads.includes(i) ? '#3b82f6' : '#1f2937'}`,
+                      cursor: 'pointer', transition: 'all 0.1s ease',
+                      display: 'flex', gap: '12px', alignItems: 'flex-start'
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedApolloLeads.includes(i)}
+                      onChange={() => toggleApolloLead(i)}
+                      style={{ marginTop: '2px', accentColor: '#3b82f6' }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontWeight: '600', fontSize: '14px' }}>{r.name}</span>
+                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: '#1e3a5f', color: '#60a5fa' }}>
+                          Apollo
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#60a5fa', marginBottom: '4px' }}>{r.email}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{r.company} · {r.title}</div>
+                      <div style={{ fontSize: '12px', color: '#fbbf24' }}>Score: {r.score}</div>
+                      <a href={r.linkedin_url || r.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'none' }}>
+                        View Profile →
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!apolloSearching && apolloResults.length === 0 && apolloIndustry && (
+              <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
+                No results found. Try different criteria or add Apollo API key to .env
               </div>
             )}
           </div>

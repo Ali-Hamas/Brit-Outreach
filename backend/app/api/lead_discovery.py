@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.db.models import Business, Prospect, TargetMarket, Campaign
 from app.services.lead_discovery.places import search_businesses as places_search
+from app.services.prospecting import ApolloProspector
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -38,6 +40,16 @@ class PlacesSearchRequest(BaseModel):
     location: str
     campaign_id: Optional[str] = None
     limit: int = 20
+
+
+class ApolloSearchRequest(BaseModel):
+    business_id: str
+    industry: str
+    location: str = ""
+    titles: List[str] = ["CTO", "CEO", "Founder", "VP Engineering", "Head of Engineering", "Engineering Manager"]
+    company_sizes: List[str] = ["1-10", "11-50", "51-200"]
+    industries: List[str] = ["Computer Software", "Information Technology", "Internet", "SaaS"]
+    limit: int = 50
 
 
 def _extract_emails(text: str) -> List[str]:
@@ -361,4 +373,60 @@ async def search_places(req: PlacesSearchRequest, db: Session = Depends(get_db))
         "leads_found": len(leads),
         "leads": leads[:req.limit],
         "message": f"Found {len(leads)} businesses from Google Places"
+    }
+
+
+@router.post("/apollo-search")
+async def search_apollo(req: ApolloSearchRequest, db: Session = Depends(get_db)):
+    """Search Apollo.io for B2B contacts. Requires APOLLO_API_KEY."""
+    business = db.query(Business).filter(Business.id == req.business_id).first()
+    if not business:
+        raise HTTPException(status_code=404, detail="Business not found")
+
+    apollo_key = getattr(settings, "APOLLO_API_KEY", None)
+    if not apollo_key:
+        return {
+            "status": "error",
+            "error": "APOLLO_API_KEY not configured",
+            "leads": []
+        }
+
+    prospector = ApolloProspector(apollo_key)
+    
+    # Create a temporary target market for the search
+    target_market = TargetMarket(
+        id="temp",
+        business_id=req.business_id,
+        name="API Search",
+        filters={
+            "industries": req.industries,
+            "titles": req.titles,
+            "company_size_ranges": req.company_sizes,
+            "locations": [req.location] if req.location else []
+        }
+    )
+
+    results = prospector.search_contacts(target_market, limit=req.limit)
+
+    leads = []
+    for r in results:
+        leads.append({
+            "name": f"{r.get('first_name', '')} {r.get('last_name', '')}".strip(),
+            "email": r.get("email", ""),
+            "company": r.get("company", ""),
+            "title": r.get("title", ""),
+            "source": "Apollo",
+            "source_url": r.get("linkedin_url", ""),
+            "score": 85,
+            "snippet": f"{r.get('company', '')} | {r.get('title', '')} | {r.get('location', '')}",
+            "phone": r.get("phone", ""),
+            "website": r.get("website", ""),
+            "linkedin_url": r.get("linkedin_url", ""),
+        })
+
+    return {
+        "status": "success",
+        "leads_found": len(leads),
+        "leads": leads[:req.limit],
+        "message": f"Found {len(leads)} verified contacts from Apollo"
     }
