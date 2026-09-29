@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from urllib.parse import urlencode, urlparse, parse_qs
 
+from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.models import Prospect, ProspectStatus
 from app.db.session import get_db
