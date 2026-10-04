@@ -21,7 +21,6 @@ class ApolloProspector:
         
         # Build payload according to Apollo API v1 format
         payload = {
-            "api_key": self.api_key,
             "page": 1,
             "per_page": min(limit, 100),
         }
@@ -60,7 +59,11 @@ class ApolloProspector:
             response = requests.post(
                 f"{self.base_url}/mixed_people/search",
                 json=payload,
-                headers={"Content-Type": "application/json", "Cache-Control": "no-cache"},
+                headers={
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-cache",
+                    "X-Api-Key": self.api_key
+                },
                 timeout=30
             )
             
