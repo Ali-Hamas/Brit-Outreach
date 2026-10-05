@@ -23,12 +23,12 @@ logger = logging.getLogger(__name__)
 class InfluencerOutreachAgent:
     """Complete influencer affiliate outreach agent with 25% commission tracking."""
     
-    def __init__(self, groq_api_key: Optional[str] = None, business_id: str = "biz-ascentra"):
+    def __init__(self, groq_api_key: Optional[str] = None, business_id: str = "biz-ascentra", commission_rate: float = 0.25):
         self.api_key = groq_api_key or getattr(settings, "GROQ_API_KEY", None)
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
         self.business_id = business_id
         self.base_tracking_url = getattr(settings, "BASE_TRACKING_URL", "https://outreach.britsyncai.com")
-        self.commission_rate = 0.25  # 25%
+        self.commission_rate = commission_rate
         
     def find_influencers_for_product(
         self, 
@@ -153,13 +153,16 @@ class InfluencerOutreachAgent:
         product_name: str,
         product_description: str,
         product_website: str,
-        commission_rate: float = 0.25
+        commission_rate: Optional[float] = None
     ) -> Dict[str, str]:
-        """Generate personalized outreach email with 25% commission offer."""
+        """Generate personalized outreach email with configurable commission offer."""
+        
+        rate = commission_rate or self.commission_rate
+        rate_pct = int(rate * 100)
         
         ref_link = self.generate_referral_link(influencer.get('contact_email', ''))
         
-        subject = f"Partnership Opportunity: 25% Commission for {product_name} - {influencer.get('name', 'Creator')}"
+        subject = f"Partnership Opportunity: {rate_pct}% Commission for {product_name} - {influencer.get('name', 'Creator')}"
         
         body = f"""Hi {influencer.get('name', 'there')},
 
@@ -168,7 +171,7 @@ I've been following your content on {influencer.get('platform', 'YouTube')} and 
 We're {product_name} - {product_description}
 
 **Affiliate Partnership Offer:**
-- **25% commission** on every sale through your unique referral link
+- **{rate_pct}% commission** on every sale through your unique referral link
 - **30-day cookie window** - you get credit for any purchase within 30 days
 - **Real-time dashboard** - track clicks, conversions, and earnings in real-time
 - **Monthly payouts** via PayPal/bank transfer (no minimum threshold)
@@ -178,7 +181,7 @@ We're {product_name} - {product_description}
 **How it works:**
 1. Share your link in video descriptions, pinned comments, bio, or stories
 2. We track every click and conversion automatically
-3. You earn 25% of every sale (lifetime recurring if subscription)
+3. You earn {rate_pct}% of every sale (lifetime recurring if subscription)
 4. Get paid monthly - no minimums
 
 We've prepared media assets (logos, screenshots, demo videos) and can hop on a quick 15-min call to walk you through the dashboard.
@@ -205,10 +208,12 @@ P.S. We only partner with creators we genuinely admire. Your content stands out 
         product_name: str,
         product_description: str,
         product_website: str,
-        commission_rate: float = 0.25,
+        commission_rate: Optional[float] = None,
         db: Session = None
     ) -> Dict[str, Any]:
         """Send outreach emails to all found influencers."""
+        
+        rate = commission_rate or self.commission_rate
         
         sent = 0
         failed = 0
@@ -276,8 +281,9 @@ P.S. We only partner with creators we genuinely admire. Your content stands out 
 class ReferralTracker:
     """Track referral clicks, conversions, and commissions."""
     
-    def __init__(self, db: Session = None):
+    def __init__(self, db: Session = None, commission_rate: float = 0.25):
         self.db = db or SessionLocal()
+        self.commission_rate = commission_rate
     
     def track_click(self, ref_code: str, ip: str = None, user_agent: str = None) -> bool:
         """Track a referral link click."""
@@ -287,7 +293,7 @@ class ReferralTracker:
     
     def track_conversion(self, ref_code: str, amount: float, customer_email: str) -> bool:
         """Track a conversion and calculate commission."""
-        commission = amount * 0.25  # 25%
+        commission = amount * self.commission_rate
         logger.info(f"Conversion: {ref_code} - ${amount} -> ${commission} commission for {customer_email}")
         # In production: create Commission record, update influencer balance
         return True
