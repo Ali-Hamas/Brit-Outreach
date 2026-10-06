@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  fetchBusinesses, fetchCampaigns, launchCampaign, fetchProspects,
-  uploadProspectsCSV, fetchAllSMTPConfigs, searchLeads, saveLeadsToCampaign, searchPlaces
-} from './api';
+  fetchBusinesses,
+  fetchCampaigns,
+  launchCampaign,
+  fetchProspects,
+  uploadProspectsCSV,
+  fetchAllSMTPConfigs,
+  searchLeads,
+  saveLeadsToCampaign,
+  searchPlaces,
+} from "./api";
 
 export default function App() {
   const [businesses, setBusinesses] = useState([]);
@@ -11,40 +18,53 @@ export default function App() {
   const [prospects, setProspects] = useState([]);
   const [smtps, setSmtps] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState('home');
-  const [msg, setMsg] = useState('');
-  const [msgType, setMsgType] = useState('success');
+  const [tab, setTab] = useState("home");
+  const [msg, setMsg] = useState("");
+  const [msgType, setMsgType] = useState("success");
 
   // Lead search state
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [selectedLeads, setSelectedLeads] = useState([]);
-  const [saveToCampaign, setSaveToCampaign] = useState('');
+  const [saveToCampaign, setSaveToCampaign] = useState("");
 
   // Places search state
-  const [placesQuery, setPlacesQuery] = useState('');
-  const [placesLocation, setPlacesLocation] = useState('');
+  const [placesQuery, setPlacesQuery] = useState("");
+  const [placesLocation, setPlacesLocation] = useState("");
   const [placesResults, setPlacesResults] = useState([]);
   const [placesSearching, setPlacesSearching] = useState(false);
   const [selectedPlacesLeads, setSelectedPlacesLeads] = useState([]);
-  const [savePlacesToCampaign, setSavePlacesToCampaign] = useState('');
+  const [savePlacesToCampaign, setSavePlacesToCampaign] = useState("");
 
   // Apollo search state
-  const [apolloIndustry, setApolloIndustry] = useState('Computer Software');
-  const [apolloLocation, setApolloLocation] = useState('London');
-  const [apolloTitles, setApolloTitles] = useState('CTO,CEO,Founder,VP Engineering,Head of Engineering');
+  const [apolloIndustry, setApolloIndustry] = useState("Computer Software");
+  const [apolloLocation, setApolloLocation] = useState("London");
+  const [apolloTitles, setApolloTitles] = useState(
+    "CTO,CEO,Founder,VP Engineering,Head of Engineering",
+  );
   const [apolloResults, setApolloResults] = useState([]);
   const [apolloSearching, setApolloSearching] = useState(false);
   const [selectedApolloLeads, setSelectedApolloLeads] = useState([]);
-  const [saveApolloToCampaign, setSaveApolloToCampaign] = useState('');
+  const [saveApolloToCampaign, setSaveApolloToCampaign] = useState("");
 
   // Influencer outreach state (BritCRM defaults)
-  const [infProductName, setInfProductName] = useState('BritCRM');
-  const [infProductDesc, setInfProductDesc] = useState('A self-hosted Next.js CRM that unifies sales pipelines, real-time team chat, LiveKit video meetings, AI email outreach, and an MCP server for AI agents. All-in-one CRM for small teams and agencies: leads, customers, deals, invoicing, campaigns, meetings, and automations in one deployable Node process.');
-  const [infProductWebsite, setInfProductWebsite] = useState('https://truecrm.online/billing');
-  const [infTargetNiche, setInfTargetNiche] = useState('SaaS founders, agencies, dev teams, small businesses, tech startups');
-  const [infPlatforms, setInfPlatforms] = useState(['youtube', 'instagram', 'tiktok', 'linkedin']);
+  const [infProductName, setInfProductName] = useState("BritCRM");
+  const [infProductDesc, setInfProductDesc] = useState(
+    "A self-hosted Next.js CRM that unifies sales pipelines, real-time team chat, LiveKit video meetings, AI email outreach, and an MCP server for AI agents. All-in-one CRM for small teams and agencies: leads, customers, deals, invoicing, campaigns, meetings, and automations in one deployable Node process.",
+  );
+  const [infProductWebsite, setInfProductWebsite] = useState(
+    "https://truecrm.online/billing",
+  );
+  const [infTargetNiche, setInfTargetNiche] = useState(
+    "SaaS founders, agencies, dev teams, small businesses, tech startups",
+  );
+  const [infPlatforms, setInfPlatforms] = useState([
+    "youtube",
+    "instagram",
+    "tiktok",
+    "linkedin",
+  ]);
   const [infMinFollowers, setInfMinFollowers] = useState(1000);
   const [infMaxInfluencers, setInfMaxInfluencers] = useState(15);
   const [infCommission, setInfCommission] = useState(25);
@@ -53,11 +73,13 @@ export default function App() {
   const [infSearchResults, setInfSearchResults] = useState([]);
   const [infSearching, setInfSearching] = useState(false);
   const [infSelectedLeads, setInfSelectedLeads] = useState([]);
-  const [infSaveToCampaign, setInfSaveToCampaign] = useState('');
+  const [infSaveToCampaign, setInfSaveToCampaign] = useState("");
   const [infPreviewEmail, setInfPreviewEmail] = useState(null);
   const [infLaunching, setInfLaunching] = useState(false);
 
-  useEffect(() => { init(); }, []);
+  useEffect(() => {
+    init();
+  }, []);
 
   async function init() {
     try {
@@ -67,26 +89,32 @@ export default function App() {
         setSelectedBiz(list[0]);
         await load(list[0].id);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async function load(bizId) {
     setLoading(true);
     try {
       const [c, p, s] = await Promise.all([
-        fetchCampaigns(bizId), fetchProspects(bizId), fetchAllSMTPConfigs()
+        fetchCampaigns(bizId),
+        fetchProspects(bizId),
+        fetchAllSMTPConfigs(),
       ]);
       setCampaigns(c);
       setProspects(p);
       setSmtps(s);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   }
 
-  function showMsg(text, type = 'success') {
+  function showMsg(text, type = "success") {
     setMsg(text);
     setMsgType(type);
-    setTimeout(() => setMsg(''), 5000);
+    setTimeout(() => setMsg(""), 5000);
   }
 
   async function handleUpload(file) {
@@ -94,9 +122,13 @@ export default function App() {
     setLoading(true);
     try {
       const res = await uploadProspectsCSV(selectedBiz.id, file);
-      showMsg(`Imported ${res.imported_count} leads! ${res.skipped_count > 0 ? `(${res.skipped_count} skipped)` : ''}`);
+      showMsg(
+        `Imported ${res.imported_count} leads! ${res.skipped_count > 0 ? `(${res.skipped_count} skipped)` : ""}`,
+      );
       await load(selectedBiz.id);
-    } catch (e) { showMsg('Upload error: ' + e.message, 'error'); }
+    } catch (e) {
+      showMsg("Upload error: " + e.message, "error");
+    }
     setLoading(false);
   }
 
@@ -106,7 +138,9 @@ export default function App() {
       const res = await launchCampaign(campId);
       showMsg(`Sent ${res.emails_sent || 0} emails!`);
       await load(selectedBiz.id);
-    } catch (e) { showMsg('Launch error: ' + e.message, 'error'); }
+    } catch (e) {
+      showMsg("Launch error: " + e.message, "error");
+    }
     setLoading(false);
   }
 
@@ -119,13 +153,15 @@ export default function App() {
       const res = await searchLeads(selectedBiz.id, searchQuery);
       setSearchResults(res.leads || []);
       showMsg(res.message || `Found ${res.leads_found} leads`);
-    } catch (e) { showMsg('Search error: ' + e.message, 'error'); }
+    } catch (e) {
+      showMsg("Search error: " + e.message, "error");
+    }
     setSearching(false);
   }
 
   function toggleLead(idx) {
-    setSelectedLeads(prev =>
-      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+    setSelectedLeads((prev) =>
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx],
     );
   }
 
@@ -141,14 +177,20 @@ export default function App() {
     if (!selectedBiz || !saveToCampaign || selectedLeads.length === 0) return;
     setLoading(true);
     try {
-      const leadsToSave = selectedLeads.map(i => searchResults[i]);
-      const res = await saveLeadsToCampaign(selectedBiz.id, saveToCampaign, leadsToSave);
+      const leadsToSave = selectedLeads.map((i) => searchResults[i]);
+      const res = await saveLeadsToCampaign(
+        selectedBiz.id,
+        saveToCampaign,
+        leadsToSave,
+      );
       showMsg(res.message || `Saved ${res.saved} leads`);
       setSearchResults([]);
       setSelectedLeads([]);
-      setSaveToCampaign('');
+      setSaveToCampaign("");
       await load(selectedBiz.id);
-    } catch (e) { showMsg('Save error: ' + e.message, 'error'); }
+    } catch (e) {
+      showMsg("Save error: " + e.message, "error");
+    }
     setLoading(false);
   }
 
@@ -158,16 +200,23 @@ export default function App() {
     setPlacesResults([]);
     setSelectedPlacesLeads([]);
     try {
-      const res = await searchPlaces(selectedBiz.id, placesQuery, placesLocation, 20);
+      const res = await searchPlaces(
+        selectedBiz.id,
+        placesQuery,
+        placesLocation,
+        20,
+      );
       setPlacesResults(res.leads || []);
       showMsg(res.message || `Found ${res.leads_found} businesses`);
-    } catch (e) { showMsg('Places search error: ' + e.message, 'error'); }
+    } catch (e) {
+      showMsg("Places search error: " + e.message, "error");
+    }
     setPlacesSearching(false);
   }
 
   function togglePlacesLead(idx) {
-    setSelectedPlacesLeads(prev =>
-      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+    setSelectedPlacesLeads((prev) =>
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx],
     );
   }
 
@@ -180,985 +229,2625 @@ export default function App() {
   }
 
   async function handleSavePlacesLeads() {
-    if (!selectedBiz || !savePlacesToCampaign || selectedPlacesLeads.length === 0) return;
+    if (
+      !selectedBiz ||
+      !savePlacesToCampaign ||
+      selectedPlacesLeads.length === 0
+    )
+      return;
     setLoading(true);
     try {
-      const leadsToSave = selectedPlacesLeads.map(i => placesResults[i]);
-      const res = await saveLeadsToCampaign(selectedBiz.id, savePlacesToCampaign, leadsToSave);
+      const leadsToSave = selectedPlacesLeads.map((i) => placesResults[i]);
+      const res = await saveLeadsToCampaign(
+        selectedBiz.id,
+        savePlacesToCampaign,
+        leadsToSave,
+      );
       showMsg(res.message || `Saved ${res.saved} leads`);
       setPlacesResults([]);
       setSelectedPlacesLeads([]);
-      setSavePlacesToCampaign('');
+      setSavePlacesToCampaign("");
       await load(selectedBiz.id);
-    } catch (e) { showMsg('Save error: ' + e.message, 'error'); }
+    } catch (e) {
+      showMsg("Save error: " + e.message, "error");
+    }
     setLoading(false);
-  }
+}
 
+async function handleTestApollo() {
+  setApolloSearching(true);
+  try {
+    const res = await testApolloConnection();
+    showMsg(res.message || "Apollo connection test completed");
+  } catch (e) {
+    showMsg("Connection test failed: " + e.message, "error");
   }
+  setApolloSearching(false);
+}
 
-  async function handleTestApollo() {
-    setApolloSearching(true);
-    try {
-      const res = await testApolloConnection();
-      showMsg(res.message || 'Apollo connection test completed');
-    } catch (e) { showMsg('Connection test failed: ' + e.message, 'error'); }
-    setApolloSearching(false);
+async function handleApolloSearch() {
+  if (!apolloIndustry.trim() || !selectedBiz) return;
+  setApolloSearching(true);
+  setApolloResults([]);
+  setSelectedApolloLeads([]);
+  try {
+    const res = await searchApollo(selectedBiz.id, {
+      industry: apolloIndustry,
+      location: apolloLocation,
+      titles: apolloTitles.split(",").map((t) => t.trim()),
+      limit: 50,
+    });
+    setApolloResults(res.leads || []);
+    showMsg(res.message || `Found ${res.leads_found} contacts`);
+  } catch (e) {
+    showMsg("Apollo search error: " + e.message, "error");
   }
+  setApolloSearching(false);
+}
 
-  async function handleApolloSearch() {
-    if (!apolloIndustry.trim() || !selectedBiz) return;
-    setApolloSearching(true);
+async function handleFindInfluencers() {
+  if (!selectedBiz) return;
+  setInfSearching(true);
+  setInfSearchResults([]);
+  setInfSelectedLeads([]);
+  try {
+    const product = {
+      name: infProductName,
+      description: infProductDesc,
+      website: infProductWebsite,
+      target_niche: infTargetNiche,
+      platforms: infPlatforms,
+      min_followers: infMinFollowers,
+      max_influencers: infMaxInfluencers,
+      commission_rate: infCommission / 100,
+    };
+    const res = await findInfluencers(selectedBiz.id, product);
+    setInfSearchResults(res.influencers || []);
+    showMsg(res.message || `Found ${res.total_found} influencers`);
+  } catch (e) {
+    showMsg("Search error: " + e.message, "error");
+  }
+  setInfSearching(false);
+}
+
+async function handleLaunchInfOutreach() {
+  if (!selectedBiz || infSearchResults.length === 0) return;
+  setInfLaunching(true);
+  try {
+    const product = {
+      name: infProductName,
+      description: infProductDesc,
+      website: infProductWebsite,
+      target_niche: infTargetNiche,
+      platforms: infPlatforms,
+      min_followers: infMinFollowers,
+      max_influencers: infMaxInfluencers,
+      commission_rate: infCommission / 100,
+    };
+    const res = await launchInfluencerOutreach(selectedBiz.id, product, true);
+    showMsg(
+      `Launched! Sent ${res.emails_sent} emails to influencers. ${res.failed > 0 ? `(${res.failed} failed)` : ""}`,
+    );
+    await load(selectedBiz.id);
+  } catch (e) {
+    showMsg("Launch error: " + e.message, "error");
+  }
+  setInfLaunching(false);
+}
+
+function toggleApolloLead(idx) {
+  setSelectedApolloLeads((prev) =>
+    prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx],
+  );
+}
+
+function selectAllApollo() {
+  if (selectedApolloLeads.length === apolloResults.length) {
+    setSelectedApolloLeads([]);
+  } else {
+    setSelectedApolloLeads(apolloResults.map((_, i) => i));
+  }
+}
+
+async function handleSaveApolloLeads() {
+  if (!selectedBiz || !saveApolloToCampaign || selectedApolloLeads.length === 0)
+    return;
+  setLoading(true);
+  try {
+    const leadsToSave = selectedApolloLeads.map((i) => apolloResults[i]);
+    const res = await saveLeadsToCampaign(
+      selectedBiz.id,
+      saveApolloToCampaign,
+      leadsToSave,
+    );
+    showMsg(res.message || `Saved ${res.saved} leads`);
     setApolloResults([]);
     setSelectedApolloLeads([]);
-    try {
-      const res = await searchApollo(selectedBiz.id, {
-        industry: apolloIndustry,
-        location: apolloLocation,
-        titles: apolloTitles.split(',').map(t => t.trim()),
-        limit: 50
-      });
-      setApolloResults(res.leads || []);
-      showMsg(res.message || `Found ${res.leads_found} contacts`);
-    } catch (e) { showMsg('Apollo search error: ' + e.message, 'error'); }
-    setApolloSearching(false);
+    setSaveApolloToCampaign("");
+    await load(selectedBiz.id);
+  } catch (e) {
+    showMsg("Save error: " + e.message, "error");
   }
+  setLoading(false);
+}
 
-  function toggleApolloLead(idx) {
-    setSelectedApolloLeads(prev =>
-      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
-    );
-  }
+const realEmailProspects = prospects.filter(
+  (p) => !p.email.includes("placeholder"),
+);
 
-  function selectAllApollo() {
-    if (selectedApolloLeads.length === apolloResults.length) {
-      setSelectedApolloLeads([]);
-    } else {
-      setSelectedApolloLeads(apolloResults.map((_, i) => i));
-    }
-  }
-
-  async function handleSaveApolloLeads() {
-    if (!selectedBiz || !saveApolloToCampaign || selectedApolloLeads.length === 0) return;
-    setLoading(true);
-    try {
-      const leadsToSave = selectedApolloLeads.map(i => apolloResults[i]);
-      const res = await saveLeadsToCampaign(selectedBiz.id, saveApolloToCampaign, leadsToSave);
-      showMsg(res.message || `Saved ${res.saved} leads`);
-      setApolloResults([]);
-      setSelectedApolloLeads([]);
-      setSaveApolloToCampaign('');
-      await load(selectedBiz.id);
-    } catch (e) { showMsg('Save error: ' + e.message, 'error'); }
-    setLoading(false);
-  }
-
-  const realEmailProspects = prospects.filter(p => !p.email.includes('placeholder'));
-
-  return (
-    <div style={{ minHeight: '100vh', background: '#0a0e1a', color: '#e2e8f0', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif' }}>
-
-      {/* Header */}
-      <header style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', borderBottom: '1px solid #1e293b', padding: '0 32px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '64px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px' }}>A</div>
-            <div>
-              <div style={{ fontWeight: '700', fontSize: '16px', letterSpacing: '-0.02em' }}>Ascentra Global</div>
-              <div style={{ fontSize: '11px', color: '#64748b' }}>Outreach System</div>
-            </div>
+return (
+  <div
+    style={{
+      minHeight: "100vh",
+      background: "#0a0e1a",
+      color: "#e2e8f0",
+      fontFamily:
+        '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+    }}
+  >
+    {/* Header */}
+    <header
+      style={{
+        background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)",
+        borderBottom: "1px solid #1e293b",
+        padding: "0 32px",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          height: "64px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "8px",
+              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "bold",
+              fontSize: "16px",
+            }}
+          >
+            A
           </div>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-              <span style={{ color: '#4ade80', marginRight: '4px' }}>●</span>
-              {realEmailProspects.length} leads
-            </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>{campaigns.length} campaigns</div>
-            {smtps.length > 0 && (
-              <div style={{ fontSize: '11px', padding: '4px 10px', background: '#065f46', color: '#4ade80', borderRadius: '12px' }}>SMTP Active</div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav style={{ background: '#0f172a', borderBottom: '1px solid #1e293b', padding: '0 32px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '4px' }}>
-{[
-            { id: 'home', label: 'Dashboard' },
-            { id: 'search', label: 'Find Leads' },
-            { id: 'places', label: 'Google Maps' },
-            { id: 'apollo', label: 'Apollo Search' },
-            { id: 'influencers', label: 'Influencer Outreach' },
-            { id: 'upload', label: 'Upload CSV' },
-            { id: 'campaigns', label: 'Campaigns' },
-            { id: 'leads', label: 'All Leads' },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
+          <div>
+            <div
               style={{
-                padding: '12px 16px',
-                border: 'none',
-                borderBottom: tab === t.id ? '2px solid #3b82f6' : '2px solid transparent',
-                background: 'transparent',
-                color: tab === t.id ? '#3b82f6' : '#64748b',
-                fontWeight: '600',
-                fontSize: '13px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
+                fontWeight: "700",
+                fontSize: "16px",
+                letterSpacing: "-0.02em",
               }}
             >
-              {t.label}
+              Ascentra Global
+            </div>
+            <div style={{ fontSize: "11px", color: "#64748b" }}>
+              Outreach System
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+          <div style={{ fontSize: "12px", color: "#94a3b8" }}>
+            <span style={{ color: "#4ade80", marginRight: "4px" }}>●</span>
+            {realEmailProspects.length} leads
+          </div>
+          <div style={{ fontSize: "12px", color: "#94a3b8" }}>
+            {campaigns.length} campaigns
+          </div>
+          {smtps.length > 0 && (
+            <div
+              style={{
+                fontSize: "11px",
+                padding: "4px 10px",
+                background: "#065f46",
+                color: "#4ade80",
+                borderRadius: "12px",
+              }}
+            >
+              SMTP Active
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+
+    {/* Navigation */}
+    <nav
+      style={{
+        background: "#0f172a",
+        borderBottom: "1px solid #1e293b",
+        padding: "0 32px",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "0 auto",
+          display: "flex",
+          gap: "4px",
+        }}
+      >
+        {[
+          { id: "home", label: "Dashboard" },
+          { id: "search", label: "Find Leads" },
+          { id: "places", label: "Google Maps" },
+          { id: "apollo", label: "Apollo Search" },
+          { id: "influencers", label: "Influencer Outreach" },
+          { id: "upload", label: "Upload CSV" },
+          { id: "campaigns", label: "Campaigns" },
+          { id: "leads", label: "All Leads" },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            style={{
+              padding: "12px 16px",
+              border: "none",
+              borderBottom:
+                tab === t.id ? "2px solid #3b82f6" : "2px solid transparent",
+              background: "transparent",
+              color: tab === t.id ? "#3b82f6" : "#64748b",
+              fontWeight: "600",
+              fontSize: "13px",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+    </nav>
+
+    {/* Message Banner */}
+    {msg && (
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "16px auto",
+          padding: "12px 20px",
+          borderRadius: "8px",
+          fontSize: "13px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: msgType === "error" ? "#450a0a" : "#052e16",
+          border: `1px solid ${msgType === "error" ? "#7f1d1d" : "#14532d"}`,
+          color: msgType === "error" ? "#fca5a5" : "#86efac",
+        }}
+      >
+        {msg}
+        <button
+          onClick={() => setMsg("")}
+          style={{
+            background: "none",
+            border: "none",
+            color: "inherit",
+            cursor: "pointer",
+            fontSize: "16px",
+          }}
+        >
+          ×
+        </button>
+      </div>
+    )}
+
+    {/* Loading */}
+    {loading && (
+      <div
+        style={{ maxWidth: "1200px", margin: "0 auto", padding: "8px 32px" }}
+      >
+        <div
+          style={{
+            height: "2px",
+            background: "#1e293b",
+            borderRadius: "2px",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+              animation: "loading 1.5s infinite",
+              width: "30%",
+            }}
+          />
+        </div>
+      </div>
+    )}
+
+    {/* Content */}
+    <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "32px" }}>
+      {/* HOME */}
+      {tab === "home" && (
+        <div>
+          <h2
+            style={{ fontSize: "24px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            Welcome back, Syed
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "14px", marginBottom: "32px" }}
+          >
+            Here's your outreach overview
+          </p>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: "16px",
+              marginBottom: "32px",
+            }}
+          >
+            {[
+              {
+                label: "Total Leads",
+                value: prospects.length,
+                color: "#3b82f6",
+              },
+              {
+                label: "Real Emails",
+                value: realEmailProspects.length,
+                color: "#22c55e",
+              },
+              { label: "Campaigns", value: campaigns.length, color: "#8b5cf6" },
+              {
+                label: "Contacted",
+                value: prospects.filter((p) => p.status === "contacted").length,
+                color: "#f59e0b",
+              },
+            ].map((s, i) => (
+              <div
+                key={i}
+                style={{
+                  background: "#111827",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  border: "1px solid #1f2937",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {s.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "28px",
+                    fontWeight: "700",
+                    color: s.color,
+                  }}
+                >
+                  {s.value}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "16px",
+            }}
+          >
+            <div
+              onClick={() => setTab("search")}
+              style={{
+                background: "#111827",
+                borderRadius: "12px",
+                padding: "24px",
+                border: "1px solid #1f2937",
+                cursor: "pointer",
+                transition: "border-color 0.15s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.borderColor = "#3b82f6")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.borderColor = "#1f2937")
+              }
+            >
+              <div style={{ fontSize: "20px", marginBottom: "8px" }}>🔍</div>
+              <h3
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  marginBottom: "4px",
+                }}
+              >
+                Find New Leads
+              </h3>
+              <p style={{ fontSize: "12px", color: "#64748b" }}>
+                Search Reddit for people who need your services
+              </p>
+            </div>
+            <div
+              onClick={() => setTab("upload")}
+              style={{
+                background: "#111827",
+                borderRadius: "12px",
+                padding: "24px",
+                border: "1px solid #1f2937",
+                cursor: "pointer",
+                transition: "border-color 0.15s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.borderColor = "#3b82f6")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.borderColor = "#1f2937")
+              }
+            >
+              <div style={{ fontSize: "20px", marginBottom: "8px" }}>📁</div>
+              <h3
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  marginBottom: "4px",
+                }}
+              >
+                Upload CSV
+              </h3>
+              <p style={{ fontSize: "12px", color: "#64748b" }}>
+                Import your own list of leads from a spreadsheet
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FIND LEADS */}
+      {tab === "search" && (
+        <div>
+          <h2
+            style={{ fontSize: "20px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            Find Real Leads
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "13px", marginBottom: "24px" }}
+          >
+            Search for people who are actively looking for services like yours.
+            Results come from Reddit.
+          </p>
+
+          <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="e.g. need AI automation agency, looking for CTO, hire web developer"
+              style={{
+                flex: 1,
+                padding: "12px 16px",
+                borderRadius: "8px",
+                border: "1px solid #334155",
+                background: "#111827",
+                color: "#e2e8f0",
+                fontSize: "14px",
+                outline: "none",
+              }}
+            />
+            <button
+              onClick={handleSearch}
+              disabled={searching || !searchQuery.trim()}
+              style={{
+                padding: "12px 28px",
+                borderRadius: "8px",
+                border: "none",
+                background: searching
+                  ? "#475569"
+                  : "linear-gradient(135deg, #3b82f6, #2563eb)",
+                color: "#fff",
+                fontWeight: "600",
+                cursor: searching ? "wait" : "pointer",
+                fontSize: "14px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {searching ? "Searching..." : "Search"}
             </button>
-          ))}
-        </div>
-      </nav>
-
-      {/* Message Banner */}
-      {msg && (
-        <div style={{
-          maxWidth: '1200px', margin: '16px auto', padding: '12px 20px',
-          borderRadius: '8px', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          background: msgType === 'error' ? '#450a0a' : '#052e16',
-          border: `1px solid ${msgType === 'error' ? '#7f1d1d' : '#14532d'}`,
-          color: msgType === 'error' ? '#fca5a5' : '#86efac',
-        }}>
-          {msg}
-          <button onClick={() => setMsg('')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: '16px' }}>×</button>
-        </div>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '8px 32px' }}>
-          <div style={{ height: '2px', background: '#1e293b', borderRadius: '2px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)', animation: 'loading 1.5s infinite', width: '30%' }} />
           </div>
-        </div>
-      )}
 
-      {/* Content */}
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px' }}>
-
-        {/* HOME */}
-        {tab === 'home' && (
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>Welcome back, Syed</h2>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '32px' }}>Here's your outreach overview</p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '32px' }}>
-              {[
-                { label: 'Total Leads', value: prospects.length, color: '#3b82f6' },
-                { label: 'Real Emails', value: realEmailProspects.length, color: '#22c55e' },
-                { label: 'Campaigns', value: campaigns.length, color: '#8b5cf6' },
-                { label: 'Contacted', value: prospects.filter(p => p.status === 'contacted').length, color: '#f59e0b' },
-              ].map((s, i) => (
-                <div key={i} style={{ background: '#111827', borderRadius: '12px', padding: '20px', border: '1px solid #1f2937' }}>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</div>
-                  <div style={{ fontSize: '28px', fontWeight: '700', color: s.color }}>{s.value}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div onClick={() => setTab('search')} style={{ background: '#111827', borderRadius: '12px', padding: '24px', border: '1px solid #1f2937', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#3b82f6'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#1f2937'}>
-                <div style={{ fontSize: '20px', marginBottom: '8px' }}>🔍</div>
-                <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>Find New Leads</h3>
-                <p style={{ fontSize: '12px', color: '#64748b' }}>Search Reddit for people who need your services</p>
-              </div>
-              <div onClick={() => setTab('upload')} style={{ background: '#111827', borderRadius: '12px', padding: '24px', border: '1px solid #1f2937', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#3b82f6'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#1f2937'}>
-                <div style={{ fontSize: '20px', marginBottom: '8px' }}>📁</div>
-                <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>Upload CSV</h3>
-                <p style={{ fontSize: '12px', color: '#64748b' }}>Import your own list of leads from a spreadsheet</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* FIND LEADS */}
-        {tab === 'search' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Find Real Leads</h2>
-            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Search for people who are actively looking for services like yours. Results come from Reddit.</p>
-
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="e.g. need AI automation agency, looking for CTO, hire web developer"
-                style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '14px', outline: 'none' }}
-              />
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              marginBottom: "24px",
+              flexWrap: "wrap",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "12px",
+                color: "#475569",
+                alignSelf: "center",
+              }}
+            >
+              Try:
+            </span>
+            {[
+              "need AI automation agency",
+              "looking for web developer",
+              "hire CTO fractional",
+              "cybersecurity consultant NHS",
+              "remote engineer lease",
+            ].map((s) => (
               <button
-                onClick={handleSearch}
-                disabled={searching || !searchQuery.trim()}
+                key={s}
+                onClick={() => setSearchQuery(s)}
                 style={{
-                  padding: '12px 28px', borderRadius: '8px', border: 'none',
-                  background: searching ? '#475569' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  color: '#fff', fontWeight: '600', cursor: searching ? 'wait' : 'pointer',
-                  fontSize: '14px', whiteSpace: 'nowrap'
+                  fontSize: "11px",
+                  color: "#93c5fd",
+                  background: "#1e3a5f",
+                  border: "1px solid #1e40af",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
                 }}
               >
-                {searching ? 'Searching...' : 'Search'}
+                {s}
               </button>
-            </div>
+            ))}
+          </div>
 
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '12px', color: '#475569', alignSelf: 'center' }}>Try:</span>
-              {[
-                'need AI automation agency',
-                'looking for web developer',
-                'hire CTO fractional',
-                'cybersecurity consultant NHS',
-                'remote engineer lease'
-              ].map(s => (
-                <button key={s} onClick={() => setSearchQuery(s)} style={{ fontSize: '11px', color: '#93c5fd', background: '#1e3a5f', border: '1px solid #1e40af', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer' }}>
-                  {s}
+          {searchResults.length > 0 && (
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "12px",
+                }}
+              >
+                <h3 style={{ fontSize: "14px", fontWeight: "600" }}>
+                  Found {searchResults.length} leads
+                </h3>
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
+                  <button
+                    onClick={selectAll}
+                    style={{
+                      fontSize: "12px",
+                      color: "#93c5fd",
+                      background: "none",
+                      border: "1px solid #334155",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {selectedLeads.length === searchResults.length
+                      ? "Deselect All"
+                      : "Select All"}
+                  </button>
+                  <span style={{ fontSize: "12px", color: "#64748b" }}>
+                    {selectedLeads.length} selected
+                  </span>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  marginBottom: "16px",
+                  alignItems: "center",
+                }}
+              >
+                <select
+                  value={saveToCampaign}
+                  onChange={(e) => setSaveToCampaign(e.target.value)}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#111827",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                    flex: 1,
+                  }}
+                >
+                  <option value="">Select campaign to save leads...</option>
+                  {campaigns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleSaveLeads}
+                  disabled={
+                    loading || !saveToCampaign || selectedLeads.length === 0
+                  }
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background:
+                      selectedLeads.length > 0 && saveToCampaign
+                        ? "#22c55e"
+                        : "#334155",
+                    color: "#fff",
+                    fontWeight: "600",
+                    cursor:
+                      selectedLeads.length > 0 && saveToCampaign
+                        ? "pointer"
+                        : "not-allowed",
+                    fontSize: "13px",
+                  }}
+                >
+                  Save {selectedLeads.length} Leads
                 </button>
-              ))}
-            </div>
-
-            {searchResults.length > 0 && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>Found {searchResults.length} leads</h3>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button onClick={selectAll} style={{ fontSize: '12px', color: '#93c5fd', background: 'none', border: '1px solid #334155', padding: '4px 12px', borderRadius: '6px', cursor: 'pointer' }}>
-                      {selectedLeads.length === searchResults.length ? 'Deselect All' : 'Select All'}
-                    </button>
-                    <span style={{ fontSize: '12px', color: '#64748b' }}>{selectedLeads.length} selected</span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
-                  <select
-                    value={saveToCampaign}
-                    onChange={(e) => setSaveToCampaign(e.target.value)}
-                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '13px', flex: 1 }}
-                  >
-                    <option value="">Select campaign to save leads...</option>
-                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <button
-                    onClick={handleSaveLeads}
-                    disabled={loading || !saveToCampaign || selectedLeads.length === 0}
-                    style={{
-                      padding: '8px 20px', borderRadius: '8px', border: 'none',
-                      background: selectedLeads.length > 0 && saveToCampaign ? '#22c55e' : '#334155',
-                      color: '#fff', fontWeight: '600', cursor: selectedLeads.length > 0 && saveToCampaign ? 'pointer' : 'not-allowed',
-                      fontSize: '13px'
-                    }}
-                  >
-                    Save {selectedLeads.length} Leads
-                  </button>
-                </div>
-
-                {searchResults.map((r, i) => (
-                  <div
-                    key={i}
-                    onClick={() => toggleLead(i)}
-                    style={{
-                      background: selectedLeads.includes(i) ? '#1e3a5f' : '#111827',
-                      borderRadius: '10px', padding: '16px', marginBottom: '8px',
-                      border: `1px solid ${selectedLeads.includes(i) ? '#3b82f6' : '#1f2937'}`,
-                      cursor: 'pointer', transition: 'all 0.1s ease',
-                      display: 'flex', gap: '12px', alignItems: 'flex-start'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedLeads.includes(i)}
-                      onChange={() => toggleLead(i)}
-                      style={{ marginTop: '2px', accentColor: '#3b82f6' }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: '600', fontSize: '14px' }}>{r.name}</span>
-                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: r.score >= 70 ? '#065f46' : r.score >= 50 ? '#713f12' : '#450a0a', color: r.score >= 70 ? '#4ade80' : r.score >= 50 ? '#fbbf24' : '#fca5a5' }}>
-                          Score: {r.score}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>{r.email}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{r.company} · {r.title}</div>
-                      <div style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>"{r.snippet}"</div>
-                      <a href={r.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'none' }}>
-                        View on Reddit →
-                      </a>
-                    </div>
-                  </div>
-                ))}
               </div>
-            )}
 
-            {!searching && searchResults.length === 0 && searchQuery && (
-              <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
-                No results found. Try different keywords.
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* GOOGLE MAPS */}
-        {tab === 'places' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Google Maps Business Search</h2>
-            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Find local businesses on Google Maps. Requires Google Places API key in .env</p>
-
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-              <input
-                value={placesQuery}
-                onChange={(e) => setPlacesQuery(e.target.value)}
-                placeholder="e.g. dental clinic, law firm, gym, restaurant"
-                style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '14px' }}
-              />
-              <input
-                value={placesLocation}
-                onChange={(e) => setPlacesLocation(e.target.value)}
-                placeholder="e.g. London UK, Manchester, Birmingham"
-                style={{ width: '200px', padding: '12px 16px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '14px' }}
-              />
-              <button
-                onClick={handlePlacesSearch}
-                disabled={placesSearching || !placesQuery.trim() || !placesLocation.trim()}
-                style={{
-                  padding: '12px 28px', borderRadius: '8px', border: 'none',
-                  background: placesSearching ? '#475569' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  color: '#fff', fontWeight: '600', cursor: placesSearching ? 'wait' : 'pointer',
-                  fontSize: '14px', whiteSpace: 'nowrap'
-                }}
-              >
-                {placesSearching ? 'Searching...' : 'Search Maps'}
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '12px', color: '#475569', alignSelf: 'center' }}>Try:</span>
-              {['dental clinic', 'law firm', 'gym fitness', 'restaurant', 'accounting firm'].map(s => (
-                <button key={s} onClick={() => setPlacesQuery(s)} style={{ fontSize: '11px', color: '#93c5fd', background: '#1e3a5f', border: '1px solid #1e40af', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer' }}>
-                  {s}
-                </button>
-              ))}
-            </div>
-
-            {placesResults.length > 0 && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>Found {placesResults.length} businesses</h3>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button onClick={selectAllPlaces} style={{ fontSize: '11px', color: '#93c5fd', background: 'none', border: '1px solid #334155', padding: '4px 12px', borderRadius: '6px', cursor: 'pointer' }}>
-                      {selectedPlacesLeads.length === placesResults.length ? 'Deselect All' : 'Select All'}
-                    </button>
-                    <span style={{ fontSize: '12px', color: '#64748b' }}>{selectedPlacesLeads.length} selected</span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
-                  <select
-                    value={savePlacesToCampaign}
-                    onChange={(e) => setSavePlacesToCampaign(e.target.value)}
-                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '13px', flex: 1 }}
-                  >
-                    <option value="">Select campaign to save businesses...</option>
-                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <button
-                    onClick={handleSavePlacesLeads}
-                    disabled={loading || !savePlacesToCampaign || selectedPlacesLeads.length === 0}
-                    style={{
-                      padding: '8px 20px', borderRadius: '8px', border: 'none',
-                      background: selectedPlacesLeads.length > 0 && savePlacesToCampaign ? '#22c55e' : '#334155',
-                      color: '#fff', fontWeight: '600', cursor: selectedPlacesLeads.length > 0 && savePlacesToCampaign ? 'pointer' : 'not-allowed',
-                      fontSize: '13px'
-                    }}
-                  >
-                    Save {selectedPlacesLeads.length} Businesses
-                  </button>
-                </div>
-
-                {placesResults.map((r, i) => (
-                  <div
-                    key={i}
-                    onClick={() => togglePlacesLead(i)}
-                    style={{
-                      background: selectedPlacesLeads.includes(i) ? '#1e3a5f' : '#111827',
-                      borderRadius: '10px', padding: '16px', marginBottom: '8px',
-                      border: `1px solid ${selectedPlacesLeads.includes(i) ? '#3b82f6' : '#1f2937'}`,
-                      cursor: 'pointer', transition: 'all 0.1s ease',
-                      display: 'flex', gap: '12px', alignItems: 'flex-start'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedPlacesLeads.includes(i)}
-                      onChange={() => togglePlacesLead(i)}
-                      style={{ marginTop: '2px', accentColor: '#3b82f6' }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: '600', fontSize: '14px' }}>{r.name}</span>
-                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: '#1e3a5f', color: '#60a5fa' }}>
-                          Google Maps
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>{r.address || 'No address'}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{r.phone || 'No phone'}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>
-                        {r.website ? <a href={r.website} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'none' }}>{r.website}</a> : 'No website'}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#fbbf24' }}>Rating: {r.rating || 'N/A'} ({r.rating_count || 0} reviews)</div>
-                      <a href={r.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'none' }}>
-                        View on Google Maps →
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!placesSearching && placesResults.length === 0 && placesQuery && (
-              <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
-                No results found. Try different keywords or add Google Places API key.
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* APOLLO SEARCH */}
-        {tab === 'apollo' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Apollo.io B2B Contact Search</h2>
-            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Find verified business contacts from Apollo.io database. Requires APOLLO_API_KEY in .env</p>
-
-            <div style={{ background: '#111827', borderRadius: '12px', padding: '24px', marginBottom: '24px', border: '1px solid #1f2937' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px' }}>Search Criteria</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Industry</label>
+              {searchResults.map((r, i) => (
+                <div
+                  key={i}
+                  onClick={() => toggleLead(i)}
+                  style={{
+                    background: selectedLeads.includes(i)
+                      ? "#1e3a5f"
+                      : "#111827",
+                    borderRadius: "10px",
+                    padding: "16px",
+                    marginBottom: "8px",
+                    border: `1px solid ${selectedLeads.includes(i) ? "#3b82f6" : "#1f2937"}`,
+                    cursor: "pointer",
+                    transition: "all 0.1s ease",
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                  }}
+                >
                   <input
-                    value={apolloIndustry}
-                    onChange={(e) => setApolloIndustry(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+                    type="checkbox"
+                    checked={selectedLeads.includes(i)}
+                    onChange={() => toggleLead(i)}
+                    style={{ marginTop: "2px", accentColor: "#3b82f6" }}
                   />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Location</label>
-                  <input
-                    value={apolloLocation}
-                    onChange={(e) => setApolloLocation(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Job Titles (comma-separated)</label>
-                  <input
-                    value={apolloTitles}
-                    onChange={(e) => setApolloTitles(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-              <button
-                onClick={handleApolloSearch}
-                disabled={apolloSearching || !apolloIndustry.trim()}
-                style={{
-                  padding: '12px 28px', borderRadius: '8px', border: 'none',
-                  background: apolloSearching ? '#475569' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  color: '#fff', fontWeight: '600', cursor: apolloSearching ? 'wait' : 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                {apolloSearching ? 'Searching...' : 'Search Apollo'}
-              </button>
-              <button
-                onClick={handleTestApollo}
-                disabled={apolloSearching}
-                style={{
-                  padding: '12px 28px', borderRadius: '8px', border: '1px solid #3b82f6',
-                  background: 'transparent', color: '#3b82f6', fontWeight: '600',
-                  cursor: apolloSearching ? 'not-allowed' : 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                Test Connection
-              </button>
-            </div>
-
-            {apolloResults.length > 0 && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>Found {apolloResults.length} contacts</h3>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button onClick={selectAllApollo} style={{ fontSize: '11px', color: '#93c5fd', background: 'none', border: '1px solid #334155', padding: '4px 12px', borderRadius: '6px', cursor: 'pointer' }}>
-                      {selectedApolloLeads.length === apolloResults.length ? 'Deselect All' : 'Select All'}
-                    </button>
-                    <span style={{ fontSize: '12px', color: '#64748b' }}>{selectedApolloLeads.length} selected</span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
-                  <select
-                    value={saveApolloToCampaign}
-                    onChange={(e) => setSaveApolloToCampaign(e.target.value)}
-                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '13px', flex: 1 }}
-                  >
-                    <option value="">Select campaign to save contacts...</option>
-                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <button
-                    onClick={handleSaveApolloLeads}
-                    disabled={loading || !saveApolloToCampaign || selectedApolloLeads.length === 0}
-                    style={{
-                      padding: '8px 20px', borderRadius: '8px', border: 'none',
-                      background: selectedApolloLeads.length > 0 && saveApolloToCampaign ? '#22c55e' : '#334155',
-                      color: '#fff', fontWeight: '600', cursor: selectedApolloLeads.length > 0 && saveApolloToCampaign ? 'pointer' : 'not-allowed',
-                      fontSize: '13px'
-                    }}
-                  >
-                    Save {selectedApolloLeads.length} Contacts
-                  </button>
-                </div>
-
-                {apolloResults.map((r, i) => (
-                  <div
-                    key={i}
-                    onClick={() => toggleApolloLead(i)}
-                    style={{
-                      background: selectedApolloLeads.includes(i) ? '#1e3a5f' : '#111827',
-                      borderRadius: '10px', padding: '16px', marginBottom: '8px',
-                      border: `1px solid ${selectedApolloLeads.includes(i) ? '#3b82f6' : '#1f2937'}`,
-                      cursor: 'pointer', transition: 'all 0.1s ease',
-                      display: 'flex', gap: '12px', alignItems: 'flex-start'
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedApolloLeads.includes(i)}
-                      onChange={() => toggleApolloLead(i)}
-                      style={{ marginTop: '2px', accentColor: '#3b82f6' }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: '600', fontSize: '14px' }}>{r.name}</span>
-                        <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: '#1e3a5f', color: '#60a5fa' }}>
-                          Apollo
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#60a5fa', marginBottom: '4px' }}>{r.email}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{r.company} · {r.title}</div>
-                      <div style={{ fontSize: '12px', color: '#fbbf24' }}>Score: {r.score}</div>
-                      <a href={r.linkedin_url || r.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'none' }}>
-                        View Profile →
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!apolloSearching && apolloResults.length === 0 && apolloIndustry && (
-              <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
-                No results found. Try different criteria or add Apollo API key to .env
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* UPLOAD CSV */}
-        {tab === 'upload' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Upload CSV</h2>
-            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Import leads from a spreadsheet file</p>
-
-            <div style={{ background: '#111827', borderRadius: '12px', border: '2px dashed #334155', padding: '48px', textAlign: 'center' }}>
-              <label style={{ cursor: 'pointer', display: 'block' }}>
-                <div style={{ fontSize: '40px', marginBottom: '12px' }}>📄</div>
-                <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>Click to choose CSV file</div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>Supports .csv files up to 10MB</div>
-                <input type="file" accept=".csv" style={{ display: 'none' }} onChange={(e) => e.target.files[0] && handleUpload(e.target.files[0])} />
-                <span style={{ display: 'inline-block', padding: '10px 28px', background: 'linear-gradient(135deg, #22c55e, #16a34a)', borderRadius: '8px', fontSize: '13px', fontWeight: '600' }}>
-                  Choose File
-                </span>
-              </label>
-            </div>
-
-            <div style={{ marginTop: '24px', background: '#111827', borderRadius: '12px', padding: '24px', border: '1px solid #1f2937' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Required CSV Format</h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #334155' }}>
-                      {['email*', 'first_name', 'last_name', 'company', 'title', 'phone', 'website'].map(h => (
-                        <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#3b82f6', fontWeight: '600' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ borderBottom: '1px solid #1f2937' }}>
-                      {['john@acme.com', 'John', 'Smith', 'Acme Ltd', 'CTO', '+447123456789', 'acme.com'].map((v, i) => (
-                        <td key={i} style={{ padding: '8px 12px', color: '#94a3b8' }}>{v}</td>
-                      ))}
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #1f2937' }}>
-                      {['sarah@techco.com', 'Sarah', 'Jones', 'TechCo', 'Founder', '+447987654321', 'techco.com'].map((v, i) => (
-                        <td key={i} style={{ padding: '8px 12px', color: '#94a3b8' }}>{v}</td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p style={{ fontSize: '11px', color: '#475569', marginTop: '8px' }}>* = required field</p>
-            </div>
-          </div>
-        )}
-
-        {/* CAMPAIGNS */}
-        {tab === 'campaigns' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Email Campaigns</h2>
-            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Launch campaigns to send emails to your leads</p>
-
-            {campaigns.map(c => {
-              const smtp = smtps.find(s => s.id === c.smtp_config_id);
-              const campProspects = prospects.filter(p => p.campaign_id === c.id);
-              const contacted = campProspects.filter(p => p.status === 'contacted').length;
-
-              return (
-                <div key={c.id} style={{ background: '#111827', borderRadius: '12px', padding: '20px', marginBottom: '12px', border: '1px solid #1f2937' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>{c.name}</h3>
-                      <div style={{ display: 'flex', gap: '16px', fontSize: '12px', color: '#64748b' }}>
-                        <span>From: {smtp?.from_email || 'info@ascentraconsulting.co.uk'}</span>
-                        <span>Leads: {campProspects.length}</span>
-                        <span>Sent: {contacted}</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleLaunch(c.id)}
-                      disabled={loading || campProspects.length === 0}
+                  <div style={{ flex: 1 }}>
+                    <div
                       style={{
-                        padding: '10px 24px', borderRadius: '8px', border: 'none',
-                        background: campProspects.length > 0 ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : '#334155',
-                        color: '#fff', fontWeight: '600', cursor: campProspects.length > 0 ? 'pointer' : 'not-allowed',
-                        fontSize: '13px'
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "4px",
                       }}
                     >
-                      {contacted > 0 ? 'Launch Again' : 'Launch'}
-                    </button>
+                      <span style={{ fontWeight: "600", fontSize: "14px" }}>
+                        {r.name}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          background:
+                            r.score >= 70
+                              ? "#065f46"
+                              : r.score >= 50
+                                ? "#713f12"
+                                : "#450a0a",
+                          color:
+                            r.score >= 70
+                              ? "#4ade80"
+                              : r.score >= 50
+                                ? "#fbbf24"
+                                : "#fca5a5",
+                        }}
+                      >
+                        Score: {r.score}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#94a3b8",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.email}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#64748b",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.company} · {r.title}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#94a3b8",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      "{r.snippet}"
+                    </div>
+                    <a
+                      href={r.source_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        fontSize: "11px",
+                        color: "#60a5fa",
+                        textDecoration: "none",
+                      }}
+                    >
+                      View on Reddit →
+                    </a>
                   </div>
                 </div>
-              );
-            })}
-
-            {campaigns.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '48px', color: '#475569', background: '#111827', borderRadius: '12px' }}>
-                No campaigns found. Run setup first.
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ALL LEADS */}
-        {tab === 'leads' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>All Leads ({prospects.length})</h2>
-            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>View and manage all your imported leads</p>
-
-            <div style={{ background: '#111827', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1f2937' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                <thead>
-                  <tr style={{ background: '#1f2937' }}>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Name</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Email</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Company</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Source</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {prospects.map(p => (
-                    <tr key={p.id} style={{ borderTop: '1px solid #1f2937' }}>
-                      <td style={{ padding: '12px 16px', fontWeight: '500' }}>{p.first_name} {p.last_name}</td>
-                      <td style={{ padding: '12px 16px', color: p.email.includes('placeholder') ? '#ef4444' : '#60a5fa' }}>
-                        {p.email}
-                        {p.email.includes('placeholder') && <span style={{ fontSize: '10px', color: '#ef4444', marginLeft: '4px' }}>⚠ no email</span>}
-                      </td>
-                      <td style={{ padding: '12px 16px', color: '#94a3b8' }}>{p.company || '-'}</td>
-                      <td style={{ padding: '12px 16px', color: '#64748b' }}>{p.source || '-'}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '500', background: p.status === 'contacted' ? '#065f46' : '#1f2937', color: p.status === 'contacted' ? '#4ade80' : '#94a3b8' }}>
-                          {p.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {prospects.length === 0 && (
-                    <tr>
-                      <td colSpan="5" style={{ padding: '48px', textAlign: 'center', color: '#475569' }}>
-                        No leads yet. Find leads or upload a CSV to get started.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+              ))}
             </div>
-          </div>
-        )}
-        {/* INFLUENCER OUTREACH */}
-        {tab === 'influencers' && (
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Influencer Affiliate Outreach</h2>
-            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>
-              Find creators who match your product, send automated outreach with 25% commission, track referrals
-            </p>
+          )}
 
-            {/* Product Configuration */}
-            <div style={{ background: '#111827', borderRadius: '12px', padding: '24px', marginBottom: '24px', border: '1px solid #1f2937' }}>
-              <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px' }}>Product Configuration</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Product Name</label>
-                  <input
-                    value={infProductName}
-                    onChange={(e) => setInfProductName(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Product Website</label>
-                  <input
-                    value={infProductWebsite}
-                    onChange={(e) => setInfProductWebsite(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Commission Rate</label>
-                  <select
-                    value={infCommission}
-                    onChange={(e) => setInfCommission(parseInt(e.target.value))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
+          {!searching && searchResults.length === 0 && searchQuery && (
+            <div
+              style={{ textAlign: "center", padding: "48px", color: "#475569" }}
+            >
+              No results found. Try different keywords.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* GOOGLE MAPS */}
+      {tab === "places" && (
+        <div>
+          <h2
+            style={{ fontSize: "20px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            Google Maps Business Search
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "13px", marginBottom: "24px" }}
+          >
+            Find local businesses on Google Maps. Requires Google Places API key
+            in .env
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              marginBottom: "16px",
+              flexWrap: "wrap",
+            }}
+          >
+            <input
+              value={placesQuery}
+              onChange={(e) => setPlacesQuery(e.target.value)}
+              placeholder="e.g. dental clinic, law firm, gym, restaurant"
+              style={{
+                flex: 1,
+                padding: "12px 16px",
+                borderRadius: "8px",
+                border: "1px solid #334155",
+                background: "#111827",
+                color: "#e2e8f0",
+                fontSize: "14px",
+              }}
+            />
+            <input
+              value={placesLocation}
+              onChange={(e) => setPlacesLocation(e.target.value)}
+              placeholder="e.g. London UK, Manchester, Birmingham"
+              style={{
+                width: "200px",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                border: "1px solid #334155",
+                background: "#111827",
+                color: "#e2e8f0",
+                fontSize: "14px",
+              }}
+            />
+            <button
+              onClick={handlePlacesSearch}
+              disabled={
+                placesSearching || !placesQuery.trim() || !placesLocation.trim()
+              }
+              style={{
+                padding: "12px 28px",
+                borderRadius: "8px",
+                border: "none",
+                background: placesSearching
+                  ? "#475569"
+                  : "linear-gradient(135deg, #3b82f6, #2563eb)",
+                color: "#fff",
+                fontWeight: "600",
+                cursor: placesSearching ? "wait" : "pointer",
+                fontSize: "14px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {placesSearching ? "Searching..." : "Search Maps"}
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              marginBottom: "16px",
+              flexWrap: "wrap",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "12px",
+                color: "#475569",
+                alignSelf: "center",
+              }}
+            >
+              Try:
+            </span>
+            {[
+              "dental clinic",
+              "law firm",
+              "gym fitness",
+              "restaurant",
+              "accounting firm",
+            ].map((s) => (
+              <button
+                key={s}
+                onClick={() => setPlacesQuery(s)}
+                style={{
+                  fontSize: "11px",
+                  color: "#93c5fd",
+                  background: "#1e3a5f",
+                  border: "1px solid #1e40af",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          {placesResults.length > 0 && (
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "12px",
+                }}
+              >
+                <h3 style={{ fontSize: "14px", fontWeight: "600" }}>
+                  Found {placesResults.length} businesses
+                </h3>
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
+                  <button
+                    onClick={selectAllPlaces}
+                    style={{
+                      fontSize: "11px",
+                      color: "#93c5fd",
+                      background: "none",
+                      border: "1px solid #334155",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
                   >
-                    <option value="10">10%</option>
-                    <option value="15">15%</option>
-                    <option value="20">20%</option>
-                    <option value="25">25% (Recommended)</option>
-                    <option value="30">30%</option>
-                  </select>
+                    {selectedPlacesLeads.length === placesResults.length
+                      ? "Deselect All"
+                      : "Select All"}
+                  </button>
+                  <span style={{ fontSize: "12px", color: "#64748b" }}>
+                    {selectedPlacesLeads.length} selected
+                  </span>
                 </div>
               </div>
-              <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Target Niche</label>
-                  <input
-                    value={infTargetNiche}
-                    onChange={(e) => setInfTargetNiche(e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Min Followers</label>
-                  <input
-                    type="number"
-                    value={infMinFollowers}
-                    onChange={(e) => setInfMinFollowers(parseInt(e.target.value))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Max Influencers</label>
-                  <input
-                    type="number"
-                    value={infMaxInfluencers}
-                    onChange={(e) => setInfMaxInfluencers(parseInt(e.target.value))}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px' }}
-                  />
-                </div>
-              </div>
-              <div style={{ marginTop: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Platforms</label>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {['youtube', 'instagram', 'tiktok', 'linkedin'].map(p => (
-                    <label key={p} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={infPlatforms.includes(p)}
-                        onChange={(e) => setInfPlatforms(e.target.checked ? [...infPlatforms, p] : infPlatforms.filter(x => x !== p))}
-                        style={{ accentColor: '#3b82f6' }}
-                      />
-                      <span style={{ fontSize: '12px', fontWeight: '500', textTransform: 'capitalize' }}>{p}</span>
-                    </label>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  marginBottom: "16px",
+                  alignItems: "center",
+                }}
+              >
+                <select
+                  value={savePlacesToCampaign}
+                  onChange={(e) => setSavePlacesToCampaign(e.target.value)}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#111827",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                    flex: 1,
+                  }}
+                >
+                  <option value="">
+                    Select campaign to save businesses...
+                  </option>
+                  {campaigns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
                   ))}
-                </div>
+                </select>
+                <button
+                  onClick={handleSavePlacesLeads}
+                  disabled={
+                    loading ||
+                    !savePlacesToCampaign ||
+                    selectedPlacesLeads.length === 0
+                  }
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background:
+                      selectedPlacesLeads.length > 0 && savePlacesToCampaign
+                        ? "#22c55e"
+                        : "#334155",
+                    color: "#fff",
+                    fontWeight: "600",
+                    cursor:
+                      selectedPlacesLeads.length > 0 && savePlacesToCampaign
+                        ? "pointer"
+                        : "not-allowed",
+                    fontSize: "13px",
+                  }}
+                >
+                  Save {selectedPlacesLeads.length} Businesses
+                </button>
               </div>
-              <div style={{ marginTop: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Product Description</label>
-                <textarea
-                  value={infProductDesc}
-                  onChange={(e) => setInfProductDesc(e.target.value)}
-                  rows={3}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#0a0e1a', color: '#e2e8f0', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' }}
+
+              {placesResults.map((r, i) => (
+                <div
+                  key={i}
+                  onClick={() => togglePlacesLead(i)}
+                  style={{
+                    background: selectedPlacesLeads.includes(i)
+                      ? "#1e3a5f"
+                      : "#111827",
+                    borderRadius: "10px",
+                    padding: "16px",
+                    marginBottom: "8px",
+                    border: `1px solid ${selectedPlacesLeads.includes(i) ? "#3b82f6" : "#1f2937"}`,
+                    cursor: "pointer",
+                    transition: "all 0.1s ease",
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedPlacesLeads.includes(i)}
+                    onChange={() => togglePlacesLead(i)}
+                    style={{ marginTop: "2px", accentColor: "#3b82f6" }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <span style={{ fontWeight: "600", fontSize: "14px" }}>
+                        {r.name}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          background: "#1e3a5f",
+                          color: "#60a5fa",
+                        }}
+                      >
+                        Google Maps
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#94a3b8",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.address || "No address"}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#64748b",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.phone || "No phone"}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#64748b",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.website ? (
+                        <a
+                          href={r.website}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: "#60a5fa", textDecoration: "none" }}
+                        >
+                          {r.website}
+                        </a>
+                      ) : (
+                        "No website"
+                      )}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#fbbf24" }}>
+                      Rating: {r.rating || "N/A"} ({r.rating_count || 0}{" "}
+                      reviews)
+                    </div>
+                    <a
+                      href={r.source_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        fontSize: "11px",
+                        color: "#60a5fa",
+                        textDecoration: "none",
+                      }}
+                    >
+                      View on Google Maps →
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!placesSearching && placesResults.length === 0 && placesQuery && (
+            <div
+              style={{ textAlign: "center", padding: "48px", color: "#475569" }}
+            >
+              No results found. Try different keywords or add Google Places API
+              key.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* APOLLO SEARCH */}
+      {tab === "apollo" && (
+        <div>
+          <h2
+            style={{ fontSize: "20px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            Apollo.io B2B Contact Search
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "13px", marginBottom: "24px" }}
+          >
+            Find verified business contacts from Apollo.io database. Requires
+            APOLLO_API_KEY in .env
+          </p>
+
+          <div
+            style={{
+              background: "#111827",
+              borderRadius: "12px",
+              padding: "24px",
+              marginBottom: "24px",
+              border: "1px solid #1f2937",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "14px",
+                fontWeight: "600",
+                marginBottom: "16px",
+              }}
+            >
+              Search Criteria
+            </h3>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "16px",
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Industry
+                </label>
+                <input
+                  value={apolloIndustry}
+                  onChange={(e) => setApolloIndustry(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Location
+                </label>
+                <input
+                  value={apolloLocation}
+                  onChange={(e) => setApolloLocation(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Job Titles (comma-separated)
+                </label>
+                <input
+                  value={apolloTitles}
+                  onChange={(e) => setApolloTitles(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
                 />
               </div>
             </div>
+          </div>
 
-            {/* Search & Launch */}
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
-              <button
-                onClick={handleFindInfluencers}
-                disabled={infSearching}
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              marginBottom: "24px",
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              onClick={handleApolloSearch}
+              disabled={apolloSearching || !apolloIndustry.trim()}
+              style={{
+                padding: "12px 28px",
+                borderRadius: "8px",
+                border: "none",
+                background: apolloSearching
+                  ? "#475569"
+                  : "linear-gradient(135deg, #3b82f6, #2563eb)",
+                color: "#fff",
+                fontWeight: "600",
+                cursor: apolloSearching ? "wait" : "pointer",
+                fontSize: "14px",
+              }}
+            >
+              {apolloSearching ? "Searching..." : "Search Apollo"}
+            </button>
+            <button
+              onClick={handleTestApollo}
+              disabled={apolloSearching}
+              style={{
+                padding: "12px 28px",
+                borderRadius: "8px",
+                border: "1px solid #3b82f6",
+                background: "transparent",
+                color: "#3b82f6",
+                fontWeight: "600",
+                cursor: apolloSearching ? "not-allowed" : "pointer",
+                fontSize: "14px",
+              }}
+            >
+              Test Connection
+            </button>
+          </div>
+
+          {apolloResults.length > 0 && (
+            <div>
+              <div
                 style={{
-                  padding: '12px 28px', borderRadius: '8px', border: 'none',
-                  background: infSearching ? '#475569' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  color: '#fff', fontWeight: '600', cursor: infSearching ? 'wait' : 'pointer',
-                  fontSize: '14px'
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "12px",
                 }}
               >
-                {infSearching ? 'Searching...' : 'Find Influencers'}
-              </button>
-              <button
-                onClick={handleLaunchInfOutreach}
-                disabled={infLaunching || infSearchResults.length === 0}
-                style={{
-                  padding: '12px 28px', borderRadius: '8px', border: 'none',
-                  background: infLaunching ? '#475569' : (infSearchResults.length > 0 ? '#22c55e' : '#334155'),
-                  color: '#fff', fontWeight: '600',
-                  cursor: infLaunching ? 'wait' : (infSearchResults.length > 0 ? 'pointer' : 'not-allowed'),
-                  fontSize: '14px'
-                }}
-              >
-                {infLaunching ? 'Launching...' : 'Launch Outreach'}
-              </button>
-            </div>
-
-            {/* Results */}
-            {infSearchResults.length > 0 && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: '600' }}>Found {infSearchResults.length} influencers</h3>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button onClick={selectAllInf} style={{ fontSize: '11px', color: '#93c5fd', background: 'none', border: '1px solid #334155', padding: '4px 12px', borderRadius: '6px', cursor: 'pointer' }}>
-                      {infSelectedLeads.length === infSearchResults.length ? 'Deselect All' : 'Select All'}
-                    </button>
-                    <span style={{ fontSize: '12px', color: '#64748b' }}>{infSelectedLeads.length} selected</span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
-                  <select
-                    value={infSaveToCampaign}
-                    onChange={(e) => setInfSaveToCampaign(e.target.value)}
-                    style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #334155', background: '#111827', color: '#e2e8f0', fontSize: '13px', flex: 1 }}
-                  >
-                    <option value="">Select campaign to save influencers...</option>
-                    {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+                <h3 style={{ fontSize: "14px", fontWeight: "600" }}>
+                  Found {apolloResults.length} contacts
+                </h3>
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
                   <button
-                    onClick={handleSavePlacesLeads}
-                    disabled={loading || !infSaveToCampaign || infSelectedLeads.length === 0}
+                    onClick={selectAllApollo}
                     style={{
-                      padding: '8px 20px', borderRadius: '8px', border: 'none',
-                      background: infSelectedLeads.length > 0 && infSaveToCampaign ? '#22c55e' : '#334155',
-                      color: '#fff', fontWeight: '600', cursor: infSelectedLeads.length > 0 && infSaveToCampaign ? 'pointer' : 'not-allowed',
-                      fontSize: '13px'
+                      fontSize: "11px",
+                      color: "#93c5fd",
+                      background: "none",
+                      border: "1px solid #334155",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
                     }}
                   >
-                    Save {infSelectedLeads.length} to Campaign
+                    {selectedApolloLeads.length === apolloResults.length
+                      ? "Deselect All"
+                      : "Select All"}
+                  </button>
+                  <span style={{ fontSize: "12px", color: "#64748b" }}>
+                    {selectedApolloLeads.length} selected
+                  </span>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  marginBottom: "16px",
+                  alignItems: "center",
+                }}
+              >
+                <select
+                  value={saveApolloToCampaign}
+                  onChange={(e) => setSaveApolloToCampaign(e.target.value)}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#111827",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                    flex: 1,
+                  }}
+                >
+                  <option value="">Select campaign to save contacts...</option>
+                  {campaigns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleSaveApolloLeads}
+                  disabled={
+                    loading ||
+                    !saveApolloToCampaign ||
+                    selectedApolloLeads.length === 0
+                  }
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background:
+                      selectedApolloLeads.length > 0 && saveApolloToCampaign
+                        ? "#22c55e"
+                        : "#334155",
+                    color: "#fff",
+                    fontWeight: "600",
+                    cursor:
+                      selectedApolloLeads.length > 0 && saveApolloToCampaign
+                        ? "pointer"
+                        : "not-allowed",
+                    fontSize: "13px",
+                  }}
+                >
+                  Save {selectedApolloLeads.length} Contacts
+                </button>
+              </div>
+
+              {apolloResults.map((r, i) => (
+                <div
+                  key={i}
+                  onClick={() => toggleApolloLead(i)}
+                  style={{
+                    background: selectedApolloLeads.includes(i)
+                      ? "#1e3a5f"
+                      : "#111827",
+                    borderRadius: "10px",
+                    padding: "16px",
+                    marginBottom: "8px",
+                    border: `1px solid ${selectedApolloLeads.includes(i) ? "#3b82f6" : "#1f2937"}`,
+                    cursor: "pointer",
+                    transition: "all 0.1s ease",
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedApolloLeads.includes(i)}
+                    onChange={() => toggleApolloLead(i)}
+                    style={{ marginTop: "2px", accentColor: "#3b82f6" }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <span style={{ fontWeight: "600", fontSize: "14px" }}>
+                        {r.name}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          background: "#1e3a5f",
+                          color: "#60a5fa",
+                        }}
+                      >
+                        Apollo
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#60a5fa",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.email}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#64748b",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.company} · {r.title}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#fbbf24" }}>
+                      Score: {r.score}
+                    </div>
+                    <a
+                      href={r.linkedin_url || r.source_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        fontSize: "11px",
+                        color: "#60a5fa",
+                        textDecoration: "none",
+                      }}
+                    >
+                      View Profile →
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!apolloSearching && apolloResults.length === 0 && apolloIndustry && (
+            <div
+              style={{ textAlign: "center", padding: "48px", color: "#475569" }}
+            >
+              No results found. Try different criteria or add Apollo API key to
+              .env
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* UPLOAD CSV */}
+      {tab === "upload" && (
+        <div>
+          <h2
+            style={{ fontSize: "20px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            Upload CSV
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "13px", marginBottom: "24px" }}
+          >
+            Import leads from a spreadsheet file
+          </p>
+
+          <div
+            style={{
+              background: "#111827",
+              borderRadius: "12px",
+              border: "2px dashed #334155",
+              padding: "48px",
+              textAlign: "center",
+            }}
+          >
+            <label style={{ cursor: "pointer", display: "block" }}>
+              <div style={{ fontSize: "40px", marginBottom: "12px" }}>📄</div>
+              <div
+                style={{
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  marginBottom: "4px",
+                }}
+              >
+                Click to choose CSV file
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#64748b",
+                  marginBottom: "16px",
+                }}
+              >
+                Supports .csv files up to 10MB
+              </div>
+              <input
+                type="file"
+                accept=".csv"
+                style={{ display: "none" }}
+                onChange={(e) =>
+                  e.target.files[0] && handleUpload(e.target.files[0])
+                }
+              />
+              <span
+                style={{
+                  display: "inline-block",
+                  padding: "10px 28px",
+                  background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                }}
+              >
+                Choose File
+              </span>
+            </label>
+          </div>
+
+          <div
+            style={{
+              marginTop: "24px",
+              background: "#111827",
+              borderRadius: "12px",
+              padding: "24px",
+              border: "1px solid #1f2937",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "14px",
+                fontWeight: "600",
+                marginBottom: "12px",
+              }}
+            >
+              Required CSV Format
+            </h3>
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "12px",
+                }}
+              >
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #334155" }}>
+                    {[
+                      "email*",
+                      "first_name",
+                      "last_name",
+                      "company",
+                      "title",
+                      "phone",
+                      "website",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        style={{
+                          textAlign: "left",
+                          padding: "8px 12px",
+                          color: "#3b82f6",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ borderBottom: "1px solid #1f2937" }}>
+                    {[
+                      "john@acme.com",
+                      "John",
+                      "Smith",
+                      "Acme Ltd",
+                      "CTO",
+                      "+447123456789",
+                      "acme.com",
+                    ].map((v, i) => (
+                      <td
+                        key={i}
+                        style={{ padding: "8px 12px", color: "#94a3b8" }}
+                      >
+                        {v}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr style={{ borderBottom: "1px solid #1f2937" }}>
+                    {[
+                      "sarah@techco.com",
+                      "Sarah",
+                      "Jones",
+                      "TechCo",
+                      "Founder",
+                      "+447987654321",
+                      "techco.com",
+                    ].map((v, i) => (
+                      <td
+                        key={i}
+                        style={{ padding: "8px 12px", color: "#94a3b8" }}
+                      >
+                        {v}
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p style={{ fontSize: "11px", color: "#475569", marginTop: "8px" }}>
+              * = required field
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* CAMPAIGNS */}
+      {tab === "campaigns" && (
+        <div>
+          <h2
+            style={{ fontSize: "20px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            Email Campaigns
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "13px", marginBottom: "24px" }}
+          >
+            Launch campaigns to send emails to your leads
+          </p>
+
+          {campaigns.map((c) => {
+            const smtp = smtps.find((s) => s.id === c.smtp_config_id);
+            const campProspects = prospects.filter(
+              (p) => p.campaign_id === c.id,
+            );
+            const contacted = campProspects.filter(
+              (p) => p.status === "contacted",
+            ).length;
+
+            return (
+              <div
+                key={c.id}
+                style={{
+                  background: "#111827",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  marginBottom: "12px",
+                  border: "1px solid #1f2937",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {c.name}
+                    </h3>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "16px",
+                        fontSize: "12px",
+                        color: "#64748b",
+                      }}
+                    >
+                      <span>
+                        From:{" "}
+                        {smtp?.from_email || "info@ascentraconsulting.co.uk"}
+                      </span>
+                      <span>Leads: {campProspects.length}</span>
+                      <span>Sent: {contacted}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleLaunch(c.id)}
+                    disabled={loading || campProspects.length === 0}
+                    style={{
+                      padding: "10px 24px",
+                      borderRadius: "8px",
+                      border: "none",
+                      background:
+                        campProspects.length > 0
+                          ? "linear-gradient(135deg, #3b82f6, #2563eb)"
+                          : "#334155",
+                      color: "#fff",
+                      fontWeight: "600",
+                      cursor:
+                        campProspects.length > 0 ? "pointer" : "not-allowed",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {contacted > 0 ? "Launch Again" : "Launch"}
                   </button>
                 </div>
+              </div>
+            );
+          })}
 
-                {infSearchResults.map((r, i) => (
-                  <div
-                    key={i}
-                    onClick={() => toggleInfLead(i)}
+          {campaigns.length === 0 && (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "48px",
+                color: "#475569",
+                background: "#111827",
+                borderRadius: "12px",
+              }}
+            >
+              No campaigns found. Run setup first.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ALL LEADS */}
+      {tab === "leads" && (
+        <div>
+          <h2
+            style={{ fontSize: "20px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            All Leads ({prospects.length})
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "13px", marginBottom: "24px" }}
+          >
+            View and manage all your imported leads
+          </p>
+
+          <div
+            style={{
+              background: "#111827",
+              borderRadius: "12px",
+              overflow: "hidden",
+              border: "1px solid #1f2937",
+            }}
+          >
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "13px",
+              }}
+            >
+              <thead>
+                <tr style={{ background: "#1f2937" }}>
+                  <th
                     style={{
-                      background: infSelectedLeads.includes(i) ? '#1e3a5f' : '#111827',
-                      borderRadius: '10px', padding: '16px', marginBottom: '8px',
-                      border: `1px solid ${infSelectedLeads.includes(i) ? '#3b82f6' : '#1f2937'}`,
-                      cursor: 'pointer', transition: 'all 0.1s ease',
-                      display: 'flex', gap: '12px', alignItems: 'flex-start'
+                      textAlign: "left",
+                      padding: "12px 16px",
+                      fontWeight: "600",
+                      fontSize: "11px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      color: "#64748b",
+                    }}
+                  >
+                    Name
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px 16px",
+                      fontWeight: "600",
+                      fontSize: "11px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      color: "#64748b",
+                    }}
+                  >
+                    Email
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px 16px",
+                      fontWeight: "600",
+                      fontSize: "11px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      color: "#64748b",
+                    }}
+                  >
+                    Company
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px 16px",
+                      fontWeight: "600",
+                      fontSize: "11px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      color: "#64748b",
+                    }}
+                  >
+                    Source
+                  </th>
+                  <th
+                    style={{
+                      textAlign: "left",
+                      padding: "12px 16px",
+                      fontWeight: "600",
+                      fontSize: "11px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      color: "#64748b",
+                    }}
+                  >
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {prospects.map((p) => (
+                  <tr key={p.id} style={{ borderTop: "1px solid #1f2937" }}>
+                    <td style={{ padding: "12px 16px", fontWeight: "500" }}>
+                      {p.first_name} {p.last_name}
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px 16px",
+                        color: p.email.includes("placeholder")
+                          ? "#ef4444"
+                          : "#60a5fa",
+                      }}
+                    >
+                      {p.email}
+                      {p.email.includes("placeholder") && (
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            color: "#ef4444",
+                            marginLeft: "4px",
+                          }}
+                        >
+                          ⚠ no email
+                        </span>
+                      )}
+                    </td>
+                    <td style={{ padding: "12px 16px", color: "#94a3b8" }}>
+                      {p.company || "-"}
+                    </td>
+                    <td style={{ padding: "12px 16px", color: "#64748b" }}>
+                      {p.source || "-"}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <span
+                        style={{
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          fontSize: "11px",
+                          fontWeight: "500",
+                          background:
+                            p.status === "contacted" ? "#065f46" : "#1f2937",
+                          color:
+                            p.status === "contacted" ? "#4ade80" : "#94a3b8",
+                        }}
+                      >
+                        {p.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {prospects.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      style={{
+                        padding: "48px",
+                        textAlign: "center",
+                        color: "#475569",
+                      }}
+                    >
+                      No leads yet. Find leads or upload a CSV to get started.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+      {/* INFLUENCER OUTREACH */}
+      {tab === "influencers" && (
+        <div>
+          <h2
+            style={{ fontSize: "20px", fontWeight: "700", marginBottom: "4px" }}
+          >
+            Influencer Affiliate Outreach
+          </h2>
+          <p
+            style={{ color: "#64748b", fontSize: "13px", marginBottom: "24px" }}
+          >
+            Find creators who match your product, send automated outreach with
+            25% commission, track referrals
+          </p>
+
+          {/* Product Configuration */}
+          <div
+            style={{
+              background: "#111827",
+              borderRadius: "12px",
+              padding: "24px",
+              marginBottom: "24px",
+              border: "1px solid #1f2937",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "14px",
+                fontWeight: "600",
+                marginBottom: "16px",
+              }}
+            >
+              Product Configuration
+            </h3>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "16px",
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Product Name
+                </label>
+                <input
+                  value={infProductName}
+                  onChange={(e) => setInfProductName(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Product Website
+                </label>
+                <input
+                  value={infProductWebsite}
+                  onChange={(e) => setInfProductWebsite(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Commission Rate
+                </label>
+                <select
+                  value={infCommission}
+                  onChange={(e) => setInfCommission(parseInt(e.target.value))}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                >
+                  <option value="10">10%</option>
+                  <option value="15">15%</option>
+                  <option value="20">20%</option>
+                  <option value="25">25% (Recommended)</option>
+                  <option value="30">30%</option>
+                </select>
+              </div>
+            </div>
+            <div
+              style={{
+                marginTop: "16px",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "16px",
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Target Niche
+                </label>
+                <input
+                  value={infTargetNiche}
+                  onChange={(e) => setInfTargetNiche(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Min Followers
+                </label>
+                <input
+                  type="number"
+                  value={infMinFollowers}
+                  onChange={(e) => setInfMinFollowers(parseInt(e.target.value))}
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Max Influencers
+                </label>
+                <input
+                  type="number"
+                  value={infMaxInfluencers}
+                  onChange={(e) =>
+                    setInfMaxInfluencers(parseInt(e.target.value))
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#0a0e1a",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                  }}
+                />
+              </div>
+            </div>
+            <div style={{ marginTop: "16px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "12px",
+                  color: "#64748b",
+                  marginBottom: "8px",
+                }}
+              >
+                Platforms
+              </label>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {["youtube", "instagram", "tiktok", "linkedin"].map((p) => (
+                  <label
+                    key={p}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      cursor: "pointer",
                     }}
                   >
                     <input
                       type="checkbox"
-                      checked={infSelectedLeads.includes(i)}
-                      onChange={() => toggleInfLead(i)}
-                      style={{ marginTop: '2px', accentColor: '#3b82f6' }}
+                      checked={infPlatforms.includes(p)}
+                      onChange={(e) =>
+                        setInfPlatforms(
+                          e.target.checked
+                            ? [...infPlatforms, p]
+                            : infPlatforms.filter((x) => x !== p),
+                        )
+                      }
+                      style={{ accentColor: "#3b82f6" }}
                     />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: '600', fontSize: '14px' }}>{r.name}</span>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                          <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: '#1e3a5f', color: '#60a5fa' }}>
-                            {r.platform}
-                          </span>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handlePreviewInfEmail(i); }}
-                            style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '4px', background: '#8b5cf6', color: '#fff', border: 'none', cursor: 'pointer' }}
-                          >
-                            Preview Email
-                          </button>
-                        </div>
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>{r.contact_email}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{r.niche} · {r.followers_count} followers</div>
-                      <div style={{ fontSize: '12px', color: '#fbbf24' }}>Commission: {r.affiliate_fit_score || infCommission}%</div>
-                      <a href={r.profile_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: '11px', color: '#60a5fa', textDecoration: 'none' }}>
-                        View Profile →
-                      </a>
-                    </div>
-                  </div>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "500",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {p}
+                    </span>
+                  </label>
                 ))}
               </div>
-            )}
+            </div>
+            <div style={{ marginTop: "16px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "12px",
+                  color: "#64748b",
+                  marginBottom: "8px",
+                }}
+              >
+                Product Description
+              </label>
+              <textarea
+                value={infProductDesc}
+                onChange={(e) => setInfProductDesc(e.target.value)}
+                rows={3}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #334155",
+                  background: "#0a0e1a",
+                  color: "#e2e8f0",
+                  fontSize: "13px",
+                  fontFamily: "inherit",
+                  resize: "vertical",
+                }}
+              />
+            </div>
+          </div>
 
-            {!infSearching && infSearchResults.length === 0 && !infSearching && (
-              <div style={{ textAlign: 'center', padding: '48px', color: '#475569' }}>
-                Configure your product above and click "Find Influencers" to start.
-              </div>
-            )}
+          {/* Search & Launch */}
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              marginBottom: "24px",
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              onClick={handleFindInfluencers}
+              disabled={infSearching}
+              style={{
+                padding: "12px 28px",
+                borderRadius: "8px",
+                border: "none",
+                background: infSearching
+                  ? "#475569"
+                  : "linear-gradient(135deg, #3b82f6, #2563eb)",
+                color: "#fff",
+                fontWeight: "600",
+                cursor: infSearching ? "wait" : "pointer",
+                fontSize: "14px",
+              }}
+            >
+              {infSearching ? "Searching..." : "Find Influencers"}
+            </button>
+            <button
+              onClick={handleLaunchInfOutreach}
+              disabled={infLaunching || infSearchResults.length === 0}
+              style={{
+                padding: "12px 28px",
+                borderRadius: "8px",
+                border: "none",
+                background: infLaunching
+                  ? "#475569"
+                  : infSearchResults.length > 0
+                    ? "#22c55e"
+                    : "#334155",
+                color: "#fff",
+                fontWeight: "600",
+                cursor: infLaunching
+                  ? "wait"
+                  : infSearchResults.length > 0
+                    ? "pointer"
+                    : "not-allowed",
+                fontSize: "14px",
+              }}
+            >
+              {infLaunching ? "Launching..." : "Launch Outreach"}
+            </button>
+          </div>
 
-            {/* Email Preview Modal (inside influencer tab) */}
-            {infPreviewEmail && (
-              <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '24px' }}>
-                <div style={{ background: '#111827', borderRadius: '12px', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflow: 'auto', border: '1px solid #1f2937' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid #1f2937' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600' }}>Email Preview</h3>
-                    <button onClick={() => setInfPreviewEmail(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '20px', cursor: 'pointer' }}>×</button>
-                  </div>
-                  <div style={{ padding: '24px' }}>
-                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Subject:</div>
-                    <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '16px', padding: '12px', background: '#0a0e1a', borderRadius: '8px', border: '1px solid #334155' }}>
-                      {infPreviewEmail.subject}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Referral Link:</div>
-                    <div style={{ fontSize: '13px', color: '#60a5fa', marginBottom: '16px', padding: '12px', background: '#0a0e1a', borderRadius: '8px', border: '1px solid #334155', wordBreak: 'break-all' }}>
-                      {infPreviewEmail.referral_link}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>Body:</div>
-                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: '13px', lineHeight: '1.6', fontFamily: 'inherit', background: '#0a0e1a', padding: '16px', borderRadius: '8px', border: '1px solid #334155', maxHeight: '400px', overflow: 'auto' }}>
-                      {infPreviewEmail.body}
-                    </pre>
-                  </div>
+          {/* Results */}
+          {infSearchResults.length > 0 && (
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "12px",
+                }}
+              >
+                <h3 style={{ fontSize: "14px", fontWeight: "600" }}>
+                  Found {infSearchResults.length} influencers
+                </h3>
+                <div
+                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
+                >
+                  <button
+                    onClick={selectAllInf}
+                    style={{
+                      fontSize: "11px",
+                      color: "#93c5fd",
+                      background: "none",
+                      border: "1px solid #334155",
+                      padding: "4px 12px",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {infSelectedLeads.length === infSearchResults.length
+                      ? "Deselect All"
+                      : "Select All"}
+                  </button>
+                  <span style={{ fontSize: "12px", color: "#64748b" }}>
+                    {infSelectedLeads.length} selected
+                  </span>
                 </div>
               </div>
-            )}
-          </div>
-        )}
 
-      </main>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  marginBottom: "16px",
+                  alignItems: "center",
+                }}
+              >
+                <select
+                  value={infSaveToCampaign}
+                  onChange={(e) => setInfSaveToCampaign(e.target.value)}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #334155",
+                    background: "#111827",
+                    color: "#e2e8f0",
+                    fontSize: "13px",
+                    flex: 1,
+                  }}
+                >
+                  <option value="">
+                    Select campaign to save influencers...
+                  </option>
+                  {campaigns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleSavePlacesLeads}
+                  disabled={
+                    loading ||
+                    !infSaveToCampaign ||
+                    infSelectedLeads.length === 0
+                  }
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "none",
+                    background:
+                      infSelectedLeads.length > 0 && infSaveToCampaign
+                        ? "#22c55e"
+                        : "#334155",
+                    color: "#fff",
+                    fontWeight: "600",
+                    cursor:
+                      infSelectedLeads.length > 0 && infSaveToCampaign
+                        ? "pointer"
+                        : "not-allowed",
+                    fontSize: "13px",
+                  }}
+                >
+                  Save {infSelectedLeads.length} to Campaign
+                </button>
+              </div>
 
-      {/* Footer */}
-      <footer style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 32px', borderTop: '1px solid #1f2937', fontSize: '11px', color: '#475569', textAlign: 'center' }}>
-        Ascentra Global Ltd · outreach.britsyncai.com
-      </footer>
-    </div>
+              {infSearchResults.map((r, i) => (
+                <div
+                  key={i}
+                  onClick={() => toggleInfLead(i)}
+                  style={{
+                    background: infSelectedLeads.includes(i)
+                      ? "#1e3a5f"
+                      : "#111827",
+                    borderRadius: "10px",
+                    padding: "16px",
+                    marginBottom: "8px",
+                    border: `1px solid ${infSelectedLeads.includes(i) ? "#3b82f6" : "#1f2937"}`,
+                    cursor: "pointer",
+                    transition: "all 0.1s ease",
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={infSelectedLeads.includes(i)}
+                    onChange={() => toggleInfLead(i)}
+                    style={{ marginTop: "2px", accentColor: "#3b82f6" }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <span style={{ fontWeight: "600", fontSize: "14px" }}>
+                        {r.name}
+                      </span>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            background: "#1e3a5f",
+                            color: "#60a5fa",
+                          }}
+                        >
+                          {r.platform}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePreviewInfEmail(i);
+                          }}
+                          style={{
+                            fontSize: "11px",
+                            padding: "4px 10px",
+                            borderRadius: "4px",
+                            background: "#8b5cf6",
+                            color: "#fff",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Preview Email
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#94a3b8",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.contact_email}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#64748b",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {r.niche} · {r.followers_count} followers
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#fbbf24" }}>
+                      Commission: {r.affiliate_fit_score || infCommission}%
+                    </div>
+                    <a
+                      href={r.profile_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        fontSize: "11px",
+                        color: "#60a5fa",
+                        textDecoration: "none",
+                      }}
+                    >
+                      View Profile →
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!infSearching && infSearchResults.length === 0 && !infSearching && (
+            <div
+              style={{ textAlign: "center", padding: "48px", color: "#475569" }}
+            >
+              Configure your product above and click "Find Influencers" to
+              start.
+            </div>
+          )}
+
+          {/* Email Preview Modal (inside influencer tab) */}
+          {infPreviewEmail && (
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0,0,0,0.8)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 100,
+                padding: "24px",
+              }}
+            >
+              <div
+                style={{
+                  background: "#111827",
+                  borderRadius: "12px",
+                  maxWidth: "700px",
+                  width: "100%",
+                  maxHeight: "90vh",
+                  overflow: "auto",
+                  border: "1px solid #1f2937",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "16px 24px",
+                    borderBottom: "1px solid #1f2937",
+                  }}
+                >
+                  <h3 style={{ fontSize: "16px", fontWeight: "600" }}>
+                    Email Preview
+                  </h3>
+                  <button
+                    onClick={() => setInfPreviewEmail(null)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#94a3b8",
+                      fontSize: "20px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div style={{ padding: "24px" }}>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#64748b",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    Subject:
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      marginBottom: "16px",
+                      padding: "12px",
+                      background: "#0a0e1a",
+                      borderRadius: "8px",
+                      border: "1px solid #334155",
+                    }}
+                  >
+                    {infPreviewEmail.subject}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#64748b",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    Referral Link:
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      color: "#60a5fa",
+                      marginBottom: "16px",
+                      padding: "12px",
+                      background: "#0a0e1a",
+                      borderRadius: "8px",
+                      border: "1px solid #334155",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {infPreviewEmail.referral_link}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#64748b",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    Body:
+                  </div>
+                  <pre
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      fontSize: "13px",
+                      lineHeight: "1.6",
+                      fontFamily: "inherit",
+                      background: "#0a0e1a",
+                      padding: "16px",
+                      borderRadius: "8px",
+                      border: "1px solid #334155",
+                      maxHeight: "400px",
+                      overflow: "auto",
+                    }}
+                  >
+                    {infPreviewEmail.body}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </main>
+
+    {/* Footer */}
+    <footer
+      style={{
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "24px 32px",
+        borderTop: "1px solid #1f2937",
+        fontSize: "11px",
+        color: "#475569",
+        textAlign: "center",
+      }}
+    >
+      Ascentra Global Ltd · outreach.britsyncai.com
+    </footer>
+  </div>
   );
 }
