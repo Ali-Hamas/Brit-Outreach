@@ -194,6 +194,17 @@ export default function App() {
     setLoading(false);
   }
 
+  }
+
+  async function handleTestApollo() {
+    setApolloSearching(true);
+    try {
+      const res = await testApolloConnection();
+      showMsg(res.message || 'Apollo connection test completed');
+    } catch (e) { showMsg('Connection test failed: ' + e.message, 'error'); }
+    setApolloSearching(false);
+  }
+
   async function handleApolloSearch() {
     if (!apolloIndustry.trim() || !selectedBiz) return;
     setApolloSearching(true);
@@ -664,6 +675,18 @@ export default function App() {
                 }}
               >
                 {apolloSearching ? 'Searching...' : 'Search Apollo'}
+              </button>
+              <button
+                onClick={handleTestApollo}
+                disabled={apolloSearching}
+                style={{
+                  padding: '12px 28px', borderRadius: '8px', border: '1px solid #3b82f6',
+                  background: 'transparent', color: '#3b82f6', fontWeight: '600',
+                  cursor: apolloSearching ? 'not-allowed' : 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Test Connection
               </button>
             </div>
 

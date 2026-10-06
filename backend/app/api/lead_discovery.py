@@ -430,3 +430,36 @@ async def search_apollo(req: ApolloSearchRequest, db: Session = Depends(get_db))
         "leads": leads[:req.limit],
         "message": f"Found {len(leads)} verified contacts from Apollo"
     }
+
+
+@router.get("/apollo-test")
+async def test_apollo_connection():
+    """Test Apollo API connection."""
+    apollo_key = getattr(settings, "APOLLO_API_KEY", None)
+    if not apollo_key:
+        return {"status": "error", "error": "APOLLO_API_KEY not configured"}
+    
+    prospector = ApolloProspector(apollo_key)
+    
+    # Test with minimal filters
+    target_market = TargetMarket(
+        id="test",
+        business_id="biz-ascentra",
+        name="Test",
+        filters={
+            "industries": ["Computer Software"],
+            "titles": ["CTO", "CEO", "Founder"],
+            "locations": ["London"],
+            "company_size_ranges": ["1-10", "11-50", "51-200"]
+        }
+    )
+    
+    try:
+        results = prospector.search_contacts(target_market, limit=5)
+        return {
+            "status": "success",
+            "message": f"Apollo API working - found {len(results)} contacts",
+            "sample": results[:2] if results else []
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}

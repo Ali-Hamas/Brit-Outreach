@@ -68,11 +68,15 @@ class ApolloProspector:
             )
             
             # Log the response for debugging
+            print(f"[Prospecting] Apollo request payload: {json.dumps(payload, default=str)}")
             if response.status_code != 200:
                 print(f"[Prospecting] Apollo API error {response.status_code}: {response.text}")
+                return [], f"Apollo API error {response.status_code}: {response.text}"
             
             response.raise_for_status()
             data = response.json()
+            
+            print(f"[Prospecting] Apollo response: {len(data.get('people', []))} people found")
 
             results = []
             for person in data.get("people", []):

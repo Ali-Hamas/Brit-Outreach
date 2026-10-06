@@ -359,3 +359,12 @@ export async function getReferralStats(refCode) {
   return res.json();
 }
 
+export async function testApolloConnection() {
+  const res = await fetch(`${BASE_URL}/lead-discovery/apollo-test`);
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.detail || 'Failed to test Apollo');
+  }
+  return res.json();
+}
+
