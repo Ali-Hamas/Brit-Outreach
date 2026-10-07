@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
-from app.api import businesses, smtp, target_markets, campaigns, prospects, tracking, influencers, social_listening, voice_calls, lead_discovery, influencer_outreach
+from app.api import businesses, smtp, target_markets, campaigns, prospects, tracking, influencers, social_listening, voice_calls, lead_discovery, influencer_outreach, referral
 from app.db.seed_data import ensure_seeded
 
 # Auto-create tables & seed default businesses and SMTP accounts
@@ -37,6 +37,7 @@ app.include_router(social_listening.router, prefix=settings.API_V1_STR)
 app.include_router(voice_calls.router, prefix=settings.API_V1_STR)
 app.include_router(lead_discovery.router, prefix=f"{settings.API_V1_STR}/lead-discovery", tags=["Lead Discovery"])
 app.include_router(influencer_outreach.router, prefix=f"{settings.API_V1_STR}/influencer-outreach", tags=["Influencer Outreach"])
+app.include_router(referral.router, prefix=f"{settings.API_V1_STR}/referral", tags=["Referral Tracking"])
 
 @app.get("/")
 def root():

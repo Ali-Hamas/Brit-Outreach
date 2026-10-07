@@ -181,3 +181,32 @@ class Reply(Base):
 
     prospect = relationship("Prospect", back_populates="replies")
     campaign = relationship("Campaign", back_populates="replies")
+
+
+class ReferralClick(Base):
+    __tablename__ = "referral_clicks"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    ref_code = Column(String, nullable=False, index=True)
+    influencer_email = Column(String, nullable=False, index=True)
+    campaign_id = Column(String, ForeignKey("campaigns.id"), nullable=True)
+    ip_address = Column(String, nullable=True)
+    user_agent = Column(Text, nullable=True)
+    referrer = Column(Text, nullable=True)
+    clicked_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Commission(Base):
+    __tablename__ = "commissions"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    ref_code = Column(String, nullable=False, index=True)
+    influencer_email = Column(String, nullable=False, index=True)
+    campaign_id = Column(String, ForeignKey("campaigns.id"), nullable=True)
+    customer_email = Column(String, nullable=False)
+    amount = Column(Float, nullable=False)
+    commission_rate = Column(Float, nullable=False)
+    commission_amount = Column(Float, nullable=False)
+    status = Column(String, default="pending")  # pending, paid, cancelled
+    created_at = Column(DateTime, default=datetime.utcnow)
+    paid_at = Column(DateTime, nullable=True)
